@@ -3,6 +3,7 @@
 	require_once './AutentificadorJWT.php';
  	require_once './Aplication/UserService.php';
  	require_once './Aplication/SessionService.php';
+ 	require_once './Model/Role.php';
 class MWparaAutentificar
 {
  
@@ -69,13 +70,11 @@ class MWparaAutentificar
 
 	public static function VerificarPerfil($request, $response, $next) {
 		try 
-		{
-			$ArrayDeParametros = $request->getParsedBody();
-		  // AutentificadorJWT::verificarToken($ArrayDeParametros['token']);
+		{		
 		  $data = Session::getInstance();
-		  if($data->get('perfil') == 'Administrador')
+		  if($data->get('role') == Role::Administrator)
 			  $response = $next($request, $response);  
-		  else $response->getBody()->write('<p>no tenes habilitado el ingreso</p>');
+		  else $response->getBody()->write('<p>ingreso no habilitado</p>');
 		}
 		catch (Exception $e) {      
 		  //guardar en un log

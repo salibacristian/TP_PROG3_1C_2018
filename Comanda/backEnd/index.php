@@ -50,7 +50,7 @@ $app->get('/logout/', function (Request $request, Response $response) {
 
     $this->get('/logs/', \UserService::class . ':GetLogs');
      
-})->add(\MWparaAutentificar::class . ':VerificarToken');
+})->add(\MWparaAutentificar::class . ':VerificarPerfil')->add(\MWparaAutentificar::class . ':VerificarToken');
 
 // $app->group('/Empleado', function () {
   
