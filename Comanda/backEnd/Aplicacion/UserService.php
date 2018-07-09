@@ -4,46 +4,93 @@ require_once './Aplicacion/SessionService.php';
 
 class UserService extends User
 {
-public function GetUser($request, $response, $args) {
+    public function GetAllUsers($request, $response, $args) {
+        $usrs=User::GetUsers();
+       $response = $response->withJson($usrs, 200);  
+      return $response;
+  }
+
+    public function GetUser($request, $response, $args) {
       $params = $request->getParams();   
       $id=$params['id'];
     	$u=User::GetUserById($id);
      	$newResponse = $response->withJson($u, 200);  
     	return $newResponse;
     }
-    //  public function TraerTodos($request, $response, $args) {
-    //   	$operaciones=Operacion::TraerOperaciones();
-    //  	$response = $response->withJson($operaciones, 200);  
-    // 	return $response;
-    // }
+
   public function SaveUser($request, $response, $args) {      
     $params = $request->getParsedBody();
-    // var_dump($ArrayDeParametros);die();
-    $name= $params['name'];
-    $email= $params['email'];
-    $password= $params['password'];
-    if(array_key_exists('sectorId',$params))
-        $sectorId= $params['sectorId'];
-    
-    $role= $params['role'];
+    // var_dump($params);die();
+    $id = 0;
+    if(array_key_exists('id',$params))
+        $id= $params['id'];
+    if($id != 0)  {//update
+        $name= $params['name'];
+        $email= $params['email'];
+        $password= $params['password'];
+        if(array_key_exists('sectorId',$params))
+            $sectorId= $params['sectorId'];        
+        $role= $params['role'];
 
-    $u = new User();
-    $u->name=$name;
-    $u->email=$email;
-    $u->password=$password;
-    $u->isSuspended=false;
-    $u->isDeleted=false;
-    $u->sectorId=isset($sectorId)? $sectorId: null;
-    $u->role=$role;
+        $u = new User();
+        $u->id=$id;
+        $u->name=$name;
+        $u->email=$email;
+        $u->password=$password;
+        $u->sectorId=isset($sectorId)? $sectorId: null;
+        $u->role=$role;
+        //  var_dump($u);die();
+        $id = $u->UpdateUser();
+    }  
+    else{//new
+        $name= $params['name'];
+        $email= $params['email'];
+        $password= $params['password'];
+        if(array_key_exists('sectorId',$params))
+            $sectorId= $params['sectorId'];
+        
+        $role= $params['role'];
 
-    //  var_dump($u);die();
+        $u = new User();
+        $u->name=$name;
+        $u->email=$email;
+        $u->password=$password;
+        $u->isSuspended=false;
+        $u->isDeleted=false;
+        $u->sectorId=isset($sectorId)? $sectorId: null;
+        $u->role=$role;
 
-    $u->AddUser();
+        //  var_dump($u);die();
+
+        $id = $u->AddUser();
+    }
 
     $objDelaRespuesta= new stdclass();
     $objDelaRespuesta->mensaje = "Exito"; 
+    $objDelaRespuesta->id = $id; 
     return $response->withJson($objDelaRespuesta, 200);
 }
+
+    public function DeleteUser($request, $response, $args) {
+        $params = $request->getParsedBody();
+        // var_dump($params);die();
+        $id=$params['id'];
+        $status=$params['status'];
+        User::Delete($id,$status);
+        $objDelaRespuesta= new stdclass();
+        $objDelaRespuesta->mensaje = "Exito"; 
+        return $response->withJson($objDelaRespuesta, 200);
+       
+    }
+    public function SuspendUser($request, $response, $args) {
+        $params = $request->getParsedBody();
+        $id=$params['id'];
+        $status=$params['status'];
+        User::Suspend($id,$status);
+        $objDelaRespuesta= new stdclass();
+        $objDelaRespuesta->mensaje = "Exito"; 
+        return $response->withJson($objDelaRespuesta, 200);
+     }
 //   public function CargarUno($request, $response, $args) {
 //     $ArrayDeParametros = $request->getParsedBody();
 //     //var_dump($ArrayDeParametros);
