@@ -8,21 +8,21 @@ class AutentificadorJWT
     private static $tipoEncriptacion = ['HS256'];
     private static $aud = null;
     
-    public static function CrearToken($datos)
+    public static function CrearToken($data)
     {
-        $ahora = time();
+        $now = time();
 
         $payload = array(
-        	'iat'=>$ahora,
-            'exp' => $ahora + (240),
+        	'iat'=>$now,
+            'exp' => $now + (240),
             'aud' => self::Aud(),
-            'data' => $datos,
-            'app'=> "API REST ESTACIONAMIENTO 2018"
+            'data' => $data,
+            'app'=> "API REST COMANDA 2018"
         );
         return JWT::encode($payload, self::$claveSecreta);
     }
     
-    public static function VerificarToken($token)
+    public static function CheckToken($token)
     {
         if(empty($token))
         {
@@ -31,17 +31,14 @@ class AutentificadorJWT
         // las siguientes lineas lanzan una excepcion, de no ser correcto o de haberse terminado el tiempo       
       
       try {
-            $decodificado = JWT::decode(
-            $token,
-            self::$claveSecreta,
-            self::$tipoEncriptacion
-        );
+            $decode = self::ObtenerPayLoad($token);
+        
         } catch (Exception $e) {
             throw $e;
         } 
         
         // si no da error,  verifico los datos de AUD que uso para saber de que lugar viene  
-        if($decodificado->aud !== self::Aud())
+        if($decode->aud !== self::Aud())
         {
             throw new Exception("No es el usuario valido");
         }
