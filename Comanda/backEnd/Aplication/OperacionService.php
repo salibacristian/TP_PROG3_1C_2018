@@ -1,8 +1,8 @@
 <?php
-require_once './Modelo/Operacion.php';
-require_once './Modelo/Cochera.php';
-require_once './Modelo/Ingreso_empleado.php';
-require_once './Aplicacion/SessionService.php';
+require_once './Model/Operacion.php';
+require_once './Model/Cochera.php';
+require_once './Model/Ingreso_empleado.php';
+require_once './Aplication/SessionService.php';
 
 class OperacionService extends Operacion //implements IApiUsable
 {

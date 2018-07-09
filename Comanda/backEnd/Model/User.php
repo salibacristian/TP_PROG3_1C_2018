@@ -98,6 +98,19 @@ class User
 	   return $query->execute();		
 	 }
 
+	 public static function Check($email,$pass) 
+	 {
+		$ctx = AccesoDatos::dameUnObjetoAcceso(); 
+		$query =$ctx->RetornarConsulta("
+		select * from user 			
+		WHERE email =:email AND password = :pass");
+		$query->bindValue(':email',$email, PDO::PARAM_STR);
+		$query->bindValue(':pass',$pass, PDO::PARAM_STR);
+	    $query->execute();	
+	   $u= $query->fetchObject('User');
+	   return $u;			
+	 }
+
   	// public function BorrarVehiculo()
 	//  {
 	//  		$objetoAccesoDato = AccesoDatos::dameUnObjetoAcceso(); 

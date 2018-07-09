@@ -1,6 +1,6 @@
 <?php
-require_once './Modelo/User.php';
-require_once './Aplicacion/SessionService.php';
+require_once './Model/User.php';
+require_once './Aplication/SessionService.php';
 
 class UserService extends User
 {
@@ -16,6 +16,12 @@ class UserService extends User
     	$u=User::GetUserById($id);
      	$newResponse = $response->withJson($u, 200);  
     	return $newResponse;
+    }
+
+    public function CheckUser($request, $response, $args) {
+        $ArrayDeParametros = $request->getParsedBody();
+        $u=User::Check($ArrayDeParametros['email'],$ArrayDeParametros['password']);
+        return $u;
     }
 
   public function SaveUser($request, $response, $args) {      
@@ -91,6 +97,32 @@ class UserService extends User
         $objDelaRespuesta->mensaje = "Exito"; 
         return $response->withJson($objDelaRespuesta, 200);
      }
+
+     public function GetLogs($request, $response, $args) {
+        
+        $objDelaRespuesta= new stdclass();
+        $objDelaRespuesta->resultado = array();
+        $params=$request->getParams();
+        $u=User::GetUserById($params['id']);
+        if($u != null)
+        {
+            $file = fopen("ingresos.txt", "r");
+            while (!feof($file)) {
+                $linea = fgets($file);
+                $mail =  explode('-', $linea)[0];   
+                if($u->email == $mail)
+                {
+                    array_push($objDelaRespuesta->resultado, $linea); 
+                }
+            }
+            
+            //var_dump($objDelaRespuesta);die();
+            fclose($file);
+        }
+
+        return $response->withJson($objDelaRespuesta, 200);      
+    }
+
 //   public function CargarUno($request, $response, $args) {
 //     $ArrayDeParametros = $request->getParsedBody();
 //     //var_dump($ArrayDeParametros);

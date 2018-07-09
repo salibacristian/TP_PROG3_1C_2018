@@ -1,7 +1,8 @@
 <?php
 
-require_once './AutentificadorJWT.php';
-// require_once './Aplication/SessionService.php';
+	require_once './AutentificadorJWT.php';
+ 	require_once './Aplication/UserService.php';
+ 	require_once './Aplication/SessionService.php';
 class MWparaAutentificar
 {
  
@@ -14,18 +15,18 @@ class MWparaAutentificar
 		  }
 		  else
 		  {
-		    $usr = EmpleadoService::VerificarUsuario($request,$response);
+		    $usr = UserService::CheckUser($request,$response);
 	    	if($usr != null){
 			    $objDelaRespuesta= new stdclass();
 			    $objDelaRespuesta->user =  $usr;
-			    $objDelaRespuesta->token=AutentificadorJWT::CrearToken(array('usuario' => $usr->mail,'perfil' => $usr->perfil));
+			    $objDelaRespuesta->token=AutentificadorJWT::CrearToken(array('user' => $usr->email,'role' => $usr->role));
 
 				$data = Session::getInstance();
 				$data->set('userId', $usr->id);
-				$data->set('mail', $usr->mail);
-				$data->set('perfil', $usr->perfil);
+				$data->set('email', $usr->email);
+				$data->set('role', $usr->role);
 				$data->set('token', $objDelaRespuesta->token);
-				$objDelaRespuesta->session = $data->get('mail');
+				$objDelaRespuesta->session = $data->get('email');
 				
 		    	MWparaAutentificar::RegistrarInicio($data);
 			  
@@ -45,7 +46,7 @@ class MWparaAutentificar
 	 static function RegistrarInicio($data){
 		$file = fopen("ingresos.txt", "a");
 		$date = date(DATE_ATOM);
-		fwrite($file, $data->get('mail') . '-' . $date . PHP_EOL);
+		fwrite($file, $data->get('email') . '-' . $date . PHP_EOL);
 
 		fclose($file);
 	}
@@ -56,7 +57,7 @@ class MWparaAutentificar
       	$ArrayDeParametros = $request->getParsedBody();
         // AutentificadorJWT::verificarToken($ArrayDeParametros['token']);
         $data = Session::getInstance();
-        AutentificadorJWT::verificarToken($data->get('token'));
+        AutentificadorJWT::CheckToken($data->get('token'));
         $response = $next($request, $response);      
       }
       catch (Exception $e) {      

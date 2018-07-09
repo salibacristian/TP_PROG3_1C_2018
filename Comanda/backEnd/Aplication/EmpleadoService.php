@@ -1,5 +1,5 @@
 <?php
-require_once './Modelo/Empleado.php';
+require_once './Model/Empleado.php';
 
 class EmpleadoService extends Empleado //implements IApiUsable
 {

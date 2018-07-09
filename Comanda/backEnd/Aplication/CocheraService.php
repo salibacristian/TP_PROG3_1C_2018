@@ -1,7 +1,7 @@
 <?php
-require_once './Modelo/Operacion.php';
-require_once './Modelo/Cochera.php';
-require_once './Aplicacion/SessionService.php';
+require_once './Model/Operacion.php';
+require_once './Model/Cochera.php';
+require_once './Aplication/SessionService.php';
 
 class CocheraService extends Cochera
 {
