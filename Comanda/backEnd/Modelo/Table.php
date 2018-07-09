@@ -1,5 +1,5 @@
 <?php
-class Empleado
+class Table
 {
 	public $id;
 	public $nombre;
@@ -119,3 +119,5 @@ class Empleado
 
 
 }
+
+?>

@@ -5,17 +5,11 @@ use \Psr\Http\Message\ResponseInterface as Response;
 
 require_once './composer/vendor/autoload.php';
 require_once './AccesoDatos.php';
-require_once './Modelo/Operacion.php';
-require_once './Modelo/Empleado.php';
-require_once './Aplicacion/OperacionService.php';
-require_once './Aplicacion/EmpleadoService.php';
-require_once './Aplicacion/CocheraService.php';
+require_once './Modelo/User.php';
+require_once './Aplicacion/UserService.php';
 require_once './AutentificadorJWT.php';
 require_once './MW/MWparaAutentificar.php';
 require_once './Aplicacion/SessionService.php';
-require_once './Modelo/Cochera.php';
-
-
 
 $config['displayErrorDetails'] = true;
 $config['addContentLengthHeader'] = false;
@@ -23,24 +17,24 @@ $config['addContentLengthHeader'] = false;
 
 $app = new \Slim\App(["settings" => $config]);
 
-  // $app->get('[/]', function (Request $request, Response $response) {    
-  //   $response->getBody()->write("GET => Bienvenido!!! ,a SlimFramework");
-  //   return $response;
-  // });
+  $app->get('[/]', function (Request $request, Response $response) {    
+    $response->getBody()->write("GET => Bienvenido!!! ,a SlimFramework");
+    return $response;
+  });
   
-  $app->group('/Operacion', function () {
+  $app->group('/User', function () {
  
-  $this->get('/', \OperacionService::class . ':traerTodos');
+   $this->get('/', \UserService::class . ':GetUser');
  
-  $this->get('/operacion', \OperacionService::class . ':traerUno');
+  // $this->get('/operacion', \UserService::class . ':traerUno');
 
-  $this->post('/', \OperacionService::class . ':CargarUno');
+  $this->post('/', \UserService::class . ':SaveUser');
 
-  $this->delete('/', \OperacionService::class . ':BorrarUno');
+  // $this->delete('/', \UserService::class . ':BorrarUno');
 
-  $this->put('/', \OperacionService::class . ':ModificarUno');
+  // $this->put('/', \UserService::class . ':ModificarUno');
      
-})->add(\MWparaAutentificar::class . ':VerificarToken');
+});//->add(\MWparaAutentificar::class . ':VerificarToken');
 
 $app->group('/Empleado', function () {
   
