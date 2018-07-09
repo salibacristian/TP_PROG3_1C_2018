@@ -10,14 +10,24 @@ class User
 	public $sectorId;
 	public $role;
 
-		public static function GetUserById($id) 
+	public static function GetUsers() 
 	{
-			$objetoAccesoDato = AccesoDatos::dameUnObjetoAcceso(); 
-			$consulta =$objetoAccesoDato->RetornarConsulta("select  * from user WHERE id =
+			$ctx = AccesoDatos::dameUnObjetoAcceso(); 
+			$query =$ctx->RetornarConsulta("select * from user");
+			$query->execute();
+			$u= $query->fetchAll(PDO::FETCH_CLASS,'User');
+      		return $u;		
+			
+	}
+
+	public static function GetUserById($id) 
+	{
+			$ctx = AccesoDatos::dameUnObjetoAcceso(); 
+			$query =$ctx->RetornarConsulta("select  * from user WHERE id =
 				:id");
-			$consulta->bindValue(':id',$id, PDO::PARAM_INT);
-			$consulta->execute();
-			$u= $consulta->fetchObject('User');
+			$query->bindValue(':id',$id, PDO::PARAM_INT);
+			$query->execute();
+			$u= $query->fetchObject('User');
       		return $u;				
 
 			
@@ -25,21 +35,68 @@ class User
 	 public function AddUser()
 	 {
 		// var_dump($this);die();
-		$objetoAccesoDato = AccesoDatos::dameUnObjetoAcceso();
-		$consulta = $objetoAccesoDato->RetornarConsulta("INSERT INTO user 
+		$ctx = AccesoDatos::dameUnObjetoAcceso();
+		$query = $ctx->RetornarConsulta("INSERT INTO user 
 		(name,email,password,isSuspended,isDeleted,sectorId,role)
 		VALUES(:name,:email,:password,:isSuspended,:isDeleted,:sectorId,:role)");
-		$consulta->bindValue(':name',$this->name, PDO::PARAM_STR);
-		$consulta->bindValue(':email',$this->email, PDO::PARAM_STR);
-		$consulta->bindValue(':password',$this->password, PDO::PARAM_STR);
-		$consulta->bindValue(':isSuspended', $this->isSuspended, PDO::PARAM_INT);
-		$consulta->bindValue(':isDeleted', $this->isDeleted, PDO::PARAM_INT);
-		$consulta->bindValue(':sectorId', $this->sectorId, PDO::PARAM_INT);
-		$consulta->bindValue(':role', $this->role, PDO::PARAM_INT);
-		var_dump($consulta);
-		$consulta->execute();
-		return $objetoAccesoDato->RetornarUltimoIdInsertado();
+		$query->bindValue(':name',$this->name, PDO::PARAM_STR);
+		$query->bindValue(':email',$this->email, PDO::PARAM_STR);
+		$query->bindValue(':password',$this->password, PDO::PARAM_STR);
+		$query->bindValue(':isSuspended', $this->isSuspended, PDO::PARAM_INT);
+		$query->bindValue(':isDeleted', $this->isDeleted, PDO::PARAM_INT);
+		$query->bindValue(':sectorId', $this->sectorId, PDO::PARAM_INT);
+		$query->bindValue(':role', $this->role, PDO::PARAM_INT);
+		$query->execute();
+		return $ctx->RetornarUltimoIdInsertado();
 	 }	
+	 public function UpdateUser()
+	 {
+		//   var_dump($this);die;
+		$ctx = AccesoDatos::dameUnObjetoAcceso(); 
+		$query =$ctx->RetornarConsulta("
+			update user 
+			set 
+			name = :name,
+			email = :email,
+			password = :password,
+			sectorId = :sectorId,		
+			role = :role		
+			WHERE id =:id");
+		$query->bindValue(':id',$this->id, PDO::PARAM_INT);
+		$query->bindValue(':name',$this->name, PDO::PARAM_STR);
+		$query->bindValue(':email',$this->email, PDO::PARAM_STR);
+		$query->bindValue(':password',$this->password, PDO::PARAM_STR);
+		$query->bindValue(':sectorId', $this->sectorId, PDO::PARAM_INT);
+		$query->bindValue(':role', $this->role, PDO::PARAM_INT);
+	
+		return $query->execute();
+	 }
+	 
+	 public static function Delete($id,$status) 
+	 {
+
+			 $ctx = AccesoDatos::dameUnObjetoAcceso(); 
+			 $query =$ctx->RetornarConsulta("
+			 update user 
+			 set 
+			 isDeleted = :status			
+			 WHERE id =:id");
+		 $query->bindValue(':id',$id, PDO::PARAM_INT);
+		 $query->bindValue(':status',$status, PDO::PARAM_INT);
+			return $query->execute();	
+	 }
+	 public static function Suspend($id,$status) 
+	 {
+		$ctx = AccesoDatos::dameUnObjetoAcceso(); 
+		$query =$ctx->RetornarConsulta("
+		update user 
+		set 
+		isSuspended = :status			
+		WHERE id =:id");
+		$query->bindValue(':id',$id, PDO::PARAM_INT);
+		$query->bindValue(':status',$status, PDO::PARAM_INT);
+	   return $query->execute();		
+	 }
 
   	// public function BorrarVehiculo()
 	//  {

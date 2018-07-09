@@ -24,15 +24,15 @@ $app = new \Slim\App(["settings" => $config]);
   
   $app->group('/User', function () {
  
-   $this->get('/', \UserService::class . ':GetUser');
+    $this->get('/user/', \UserService::class . ':GetUser');
  
-  // $this->get('/operacion', \UserService::class . ':traerUno');
+    $this->get('/', \UserService::class . ':GetAllUsers');
 
-  $this->post('/', \UserService::class . ':SaveUser');
+    $this->post('/', \UserService::class . ':SaveUser');
 
-  // $this->delete('/', \UserService::class . ':BorrarUno');
+    $this->delete('/', \UserService::class . ':DeleteUser');
 
-  // $this->put('/', \UserService::class . ':ModificarUno');
+    $this->put('/', \UserService::class . ':SuspendUser');
      
 });//->add(\MWparaAutentificar::class . ':VerificarToken');
 
