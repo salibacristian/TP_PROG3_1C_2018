@@ -67,7 +67,9 @@ $app->group('/Table', function () {
  })->add(\MWparaAutentificar::class . ':VerificarToken');
 
  $app->group('/Order', function () {
- 
+  
+      $this->get('/', \OrderService::class . ':GetOrders');
+  
       $this->post('/', \OrderService::class . ':NewOrder');//waiter only
 
       $this->put('/', \OrderService::class . ':TakeOrder');//producer only

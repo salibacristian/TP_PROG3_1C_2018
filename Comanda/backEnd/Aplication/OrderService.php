@@ -9,6 +9,27 @@ require_once './Aplication/SessionService.php';
 
 class OrderService extends Order 
 {
+  public function GetOrders($request, $response, $args) {
+    $role= $_SESSION['role'];
+    $sector= $_SESSION['sector'];
+    // var_dump($role);
+		// var_dump($sector);die();
+    switch ($role) {
+      case Role::Administrator:
+        $o=Order::AllOrders();
+        break;
+        case Role::Waiter:
+        //todo: pedidos terminados de todos los sectores
+        break;
+        case Role::Producer:
+        $status = OrderStatus::Pending;
+        $o=Order::Orders($status,$sector);
+        break;
+    }
+
+    $response = $response->withJson($o, 200);  
+    return $response;
+  }
 
   static function randomKey($length) {
     $pool = array_merge(range(0,9), range('a', 'z'),range('A', 'Z'));

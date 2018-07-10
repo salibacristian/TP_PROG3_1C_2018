@@ -19,6 +19,31 @@ class Order
 	public $takenDate;
 	public $finishDate;
 
+	public static function Orders($status,$sector) 
+	{
+		// var_dump($status);
+		// var_dump($sector);die();
+			$ctx = AccesoDatos::dameUnObjetoAcceso(); 
+			$query =$ctx->RetornarConsulta("select * from `order`
+			WHERE (:sector = `sectorId`)
+			AND (:status = `status`)
+			");	
+			$query->bindValue(':sector',$sector, PDO::PARAM_INT);			
+			$query->bindValue(':status',$status, PDO::PARAM_INT);		
+			$query->execute();
+			return $query->fetchAll(PDO::FETCH_CLASS,'Order');
+			
+	}
+	///hago este metodo de mierd@ porque no se por que mierd@ tira SQLSTATE[HY093] si pongo este where WHERE (:sector = `sectorId` OR :sector = null)	AND (:status = `status` OR :status = null)
+	public static function AllOrders() 
+	{
+			$ctx = AccesoDatos::dameUnObjetoAcceso(); 
+			$query =$ctx->RetornarConsulta("select * from `order`");	
+			$query->execute();
+			return $query->fetchAll(PDO::FETCH_CLASS,'Order');
+			
+	}
+
 	public static function GetOrderById($id) 
 	{
 			$ctx = AccesoDatos::dameUnObjetoAcceso(); 
