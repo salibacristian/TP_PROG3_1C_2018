@@ -91,6 +91,16 @@ public function TakeOrder($request, $response, $args) {
   $estimatedTime= $params['estimatedTime'];
   $id_producer= $_SESSION['userId'];
 
+  $order = Order::GetOrderById($orderId);
+  if($order == null){
+    $objDelaRespuesta->mensaje = "No se encontro la orden";
+    return $response->withJson($objDelaRespuesta, 200);
+  }
+  if($order->status == OrderStatus::Canceled){
+    $objDelaRespuesta->mensaje = "La orden esta cancelada";
+    return $response->withJson($objDelaRespuesta, 200);
+  }
+
   //seteo hora local 
   date_default_timezone_set('America/Argentina/Buenos_Aires');
   // $today = getdate();
@@ -134,6 +144,10 @@ public function FinishOrder($request, $response, $args) {
     $objDelaRespuesta->mensaje = "No se encontro la orden";
     return $response->withJson($objDelaRespuesta, 200);
   }
+  if($order->status == OrderStatus::Canceled){
+    $objDelaRespuesta->mensaje = "La orden esta cancelada";
+    return $response->withJson($objDelaRespuesta, 200);
+  }
 
   //seteo hora local 
   date_default_timezone_set('America/Argentina/Buenos_Aires');
@@ -152,6 +166,31 @@ public function FinishOrder($request, $response, $args) {
 
    $objDelaRespuesta= new stdclass();
    $objDelaRespuesta->mensaje = "Pedido listo";
+  }catch(Exception $e){
+    $objDelaRespuesta->mensaje = $e->getMessage();
+  }
+
+  return $response->withJson($objDelaRespuesta, 200);
+}
+
+public function CancelOrder($request, $response, $args) {
+  $objDelaRespuesta= new stdclass();
+  try{
+  $params = $request->getParsedBody();
+  $orderId= $params['orderId']; 
+  $order = Order::GetOrderById($orderId);
+  if($order == null){
+    $objDelaRespuesta->mensaje = "No se encontro la orden";
+    return $response->withJson($objDelaRespuesta, 200);
+  } 
+
+  Order::Cancel($orderId);  
+
+   //actualizo status mesa
+    RestaurantTable::ChangeStatus($order->tableId,TableStatus::Closed);
+
+   $objDelaRespuesta= new stdclass();
+   $objDelaRespuesta->mensaje = "Pedido cancelado";
   }catch(Exception $e){
     $objDelaRespuesta->mensaje = $e->getMessage();
   }

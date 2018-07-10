@@ -74,6 +74,8 @@ $app->group('/Table', function () {
 
       $this->put('/finish/', \OrderService::class . ':FinishOrder');//producer only
 
+      $this->put('/cancel/', \OrderService::class . ':CancelOrder');//admin only(cerrar mesa)
+
       
  })->add(\MWparaAutentificar::class . ':VerificarToken');
  

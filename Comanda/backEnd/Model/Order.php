@@ -72,6 +72,16 @@ class Order
 	   $query->bindValue(':id',$orderId, PDO::PARAM_INT);	   
 	   return $query->execute();
 	}
+	public static function Cancel($orderId)
+	{
+	   $ctx = AccesoDatos::dameUnObjetoAcceso();
+	   $query = $ctx->RetornarConsulta("UPDATE `order` SET
+	   `status`=:status
+	   WHERE id = :id");	
+	   $query->bindValue(':status',3, PDO::PARAM_INT);   
+	   $query->bindValue(':id',$orderId, PDO::PARAM_INT);	   
+	   return $query->execute();
+	}
 	// public static function TraerCocheras($libres) 
 	// {
 	// 	$enUso = $libres? 0 : 1;
