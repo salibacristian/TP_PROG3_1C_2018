@@ -6,10 +6,11 @@ use \Psr\Http\Message\ResponseInterface as Response;
 require_once './composer/vendor/autoload.php';
 require_once './AccesoDatos.php';
 require_once './Model/User.php';
-require_once './Aplication/UserService.php';
 require_once './AutentificadorJWT.php';
 require_once './MW/MWparaAutentificar.php';
 require_once './Aplication/SessionService.php';
+require_once './Aplication/UserService.php';
+require_once './Aplication/RestaurantTableService.php';
 
 $config['displayErrorDetails'] = true;
 $config['addContentLengthHeader'] = false;
@@ -52,24 +53,18 @@ $app->get('/logout/', function (Request $request, Response $response) {
      
 })->add(\MWparaAutentificar::class . ':VerificarPerfil')->add(\MWparaAutentificar::class . ':VerificarToken');
 
-// $app->group('/Empleado', function () {
+$app->group('/Table', function () {
   
-//    $this->get('/', \EmpleadoService::class . ':traerTodos');
+     $this->get('/tables/', \RestaurantTableService::class . ':GetTables')->add(\MWparaAutentificar::class . ':VerificarPerfil');//bystatus admin or waiter only
   
-//    $this->get('/empleado/', \EmpleadoService::class . ':traerUno');
+     $this->get('/', \RestaurantTableService::class . ':GetTablesInfo')->add(\MWparaAutentificar::class . ':VerificarPerfil');//admin only
  
-//    $this->post('/', \EmpleadoService::class . ':CargarUno');
+     $this->post('/', \RestaurantTableService::class . ':SaveNewTable')->add(\MWparaAutentificar::class . ':VerificarPerfil');//admin only
  
-//    $this->delete('/', \EmpleadoService::class . ':BorrarUno');
- 
-//    $this->put('/', \EmpleadoService::class . ':ModificarUno');
-
-//    $this->get('/ingresos/', \EmpleadoService::class . ':TraerIngresos');
-
-//    $this->get('/operaciones/', \EmpleadoService::class . ':TraerOperaciones');
+     $this->delete('/', \RestaurantTableService::class . ':DeleteTable')->add(\MWparaAutentificar::class . ':VerificarPerfil');//admin only
       
-//  })->add(\MWparaAutentificar::class . ':VerificarPerfil')->add(\MWparaAutentificar::class . ':VerificarToken');
-
+ })->add(\MWparaAutentificar::class . ':VerificarToken');
+ 
 // $app->get('/cocheras/', function (Request $request, Response $response) {
 //       $params = $request->getParams();
 //       $cocheras= Cochera::TraerCocheras($params['libres']); 
