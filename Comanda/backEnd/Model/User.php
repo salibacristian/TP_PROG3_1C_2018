@@ -111,17 +111,7 @@ class User
 	   return $u;			
 	 }
 
-  	// public function BorrarVehiculo()
-	//  {
-	//  		$objetoAccesoDato = AccesoDatos::dameUnObjetoAcceso(); 
-	// 		$consulta =$objetoAccesoDato->RetornarConsulta("
-	// 			delete 
-	// 			from Vehiculos 				
-	// 			WHERE id=:id");	
-	// 			$consulta->bindValue(':id',$this->id, PDO::PARAM_INT);		
-	// 			$consulta->execute();
-	// 			return $consulta->rowCount();
-	//  }
+
 
 	// public static function BorrarCdPorAnio($año)
 	 // {
