@@ -4,6 +4,7 @@ require_once './Model/Order_User.php';
 require_once './Model/RestaurantTable.php';
 require_once './Model/Role.php';
 require_once './Model/TableStatus.php';
+require_once './Model/OrderStatus.php';
 require_once './Aplication/SessionService.php';
 
 class OrderService extends Order 
@@ -74,12 +75,52 @@ class OrderService extends Order
     RestaurantTable::ChangeStatus($tableId,TableStatus::Waiting);
 
      $objDelaRespuesta= new stdclass();
-     $objDelaRespuesta->mensaje = "Exito";
+     $objDelaRespuesta->mensaje = $code;
     }catch(Exception $e){
       $objDelaRespuesta->mensaje = $e->getMessage();
     }
 
     return $response->withJson($objDelaRespuesta, 200);;
+}
+
+public function TakeOrder($request, $response, $args) {
+  $objDelaRespuesta= new stdclass();
+  try{
+  $params = $request->getParsedBody();
+  $orderId= $params['orderId'];
+  $estimatedTime= $params['estimatedTime'];
+  $id_producer= $_SESSION['userId'];
+
+  //seteo hora local 
+  date_default_timezone_set('America/Argentina/Buenos_Aires');
+  // $today = getdate();
+  //var_dump($today);
+  //FORMATO PROPIO (dd/mm/yyyy hh:mm)
+  // $fecha_hora_ingreso = $today['mday']."/".$today['mon']."/".$today['year']." "
+  // .$today['hours'].":".$today['minutes'];
+
+  $now = new Datetime();
+  $takenDate = $now->format('Y-m-d H:i:s');   
+
+  Order::Take($orderId,OrderStatus::InProgress,$estimatedTime,$takenDate);
+
+   //cargo relacion con usuario productor
+   $ou = new Order_User();
+   
+   $ou->userId=$id_producer;
+   $ou->orderId=$orderId;
+   $ou->userRole= Role::Producer;
+
+   $ou->Add();
+
+
+   $objDelaRespuesta= new stdclass();
+   $objDelaRespuesta->mensaje = "Pedido en preparacion";
+  }catch(Exception $e){
+    $objDelaRespuesta->mensaje = $e->getMessage();
+  }
+
+  return $response->withJson($objDelaRespuesta, 200);;
 }
 
  	// public function TraerUno($request, $response, $args) {

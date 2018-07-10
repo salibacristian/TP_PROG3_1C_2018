@@ -16,6 +16,7 @@ class Order
 	public $waiterPoints;
 	public $producerPoints;
 	public $createdDate;
+	public $takenDate;
 
 	public function Add()
 	{
@@ -34,6 +35,19 @@ class Order
 	   $query->execute();
 	   return $ctx->RetornarUltimoIdInsertado();
 	}	
+	public static function Take($orderId, $status, $estimatedTime, $takenDate)
+	{
+	    // var_dump($this);die();
+	   $ctx = AccesoDatos::dameUnObjetoAcceso();
+	   $query = $ctx->RetornarConsulta("UPDATE `order` SET
+	   `status`=:status,estimatedTime=:estimatedTime,takenDate=:takenDate
+	   WHERE id = :id");
+	   $query->bindValue(':status',$status, PDO::PARAM_INT);
+	   $query->bindValue(':estimatedTime',$estimatedTime, PDO::PARAM_INT);
+	   $query->bindValue(':takenDate',$takenDate, PDO::PARAM_STR);	   
+	   $query->bindValue(':id',$orderId, PDO::PARAM_INT);	   
+	   return $query->execute();
+	}
 	// public static function TraerCocheras($libres) 
 	// {
 	// 	$enUso = $libres? 0 : 1;

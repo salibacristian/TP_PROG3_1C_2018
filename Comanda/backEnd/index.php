@@ -67,19 +67,13 @@ $app->group('/Table', function () {
  })->add(\MWparaAutentificar::class . ':VerificarToken');
 
  $app->group('/Order', function () {
-  
-    //  $this->get('/user/', \UserService::class . ':GetUser');
-  
-    //  $this->get('/', \UserService::class . ':GetAllUsers');
  
-      $this->post('/', \OrderService::class . ':NewOrder');
- 
-    //  $this->delete('/', \UserService::class . ':DeleteUser');
- 
-    //  $this->put('/', \UserService::class . ':SuspendUser');
+      $this->post('/', \OrderService::class . ':NewOrder');//waiter only
+
+      $this->put('/', \OrderService::class . ':TakeOrder');//producer only
 
       
- })->add(\MWparaAutentificar::class . ':VerificarPerfil')->add(\MWparaAutentificar::class . ':VerificarToken');
+ })->add(\MWparaAutentificar::class . ':VerificarToken');
  
  
 // $app->get('/cocheras/', function (Request $request, Response $response) {
