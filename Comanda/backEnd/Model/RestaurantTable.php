@@ -47,6 +47,17 @@ class RestaurantTable
 				return $query->rowCount();
 	 }
 
+	 public static function ChangeStatus($id,$status)
+	 {
+		$ctx = AccesoDatos::dameUnObjetoAcceso();
+		$query = $ctx->RetornarConsulta("UPDATE restaurantTable SET
+		`status` = :status
+		WHERE id=:id");
+		$query->bindValue(':id',$id, PDO::PARAM_INT);
+		$query->bindValue(':status',$status, PDO::PARAM_INT);
+		return $query->execute();		
+	 }
+
 	// public function Operaciones() 
 	// {
 	// 		$objetoAccesoDato = AccesoDatos::dameUnObjetoAcceso(); 

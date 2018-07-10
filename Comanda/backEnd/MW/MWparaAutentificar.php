@@ -26,6 +26,7 @@ class MWparaAutentificar
 				$data->set('userId', $usr->id);
 				$data->set('email', $usr->email);
 				$data->set('role', $usr->role);
+				$data->set('sector', $usr->sectorId);
 				$data->set('token', $objDelaRespuesta->token);
 				$objDelaRespuesta->session = $data->get('email');
 				

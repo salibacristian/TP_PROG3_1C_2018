@@ -11,6 +11,7 @@ require_once './MW/MWparaAutentificar.php';
 require_once './Aplication/SessionService.php';
 require_once './Aplication/UserService.php';
 require_once './Aplication/RestaurantTableService.php';
+require_once './Aplication/OrderService.php';
 
 $config['displayErrorDetails'] = true;
 $config['addContentLengthHeader'] = false;
@@ -64,6 +65,22 @@ $app->group('/Table', function () {
      $this->delete('/', \RestaurantTableService::class . ':DeleteTable')->add(\MWparaAutentificar::class . ':VerificarPerfil');//admin only
       
  })->add(\MWparaAutentificar::class . ':VerificarToken');
+
+ $app->group('/Order', function () {
+  
+      $this->get('/', \OrderService::class . ':GetOrders');
+  
+      $this->post('/', \OrderService::class . ':NewOrder');//waiter only
+
+      $this->put('/', \OrderService::class . ':TakeOrder');//producer only
+
+      $this->put('/finish/', \OrderService::class . ':FinishOrder');//producer only
+
+      $this->put('/cancel/', \OrderService::class . ':CancelOrder');//admin only(cerrar mesa)
+
+      
+ })->add(\MWparaAutentificar::class . ':VerificarToken');
+ 
  
 // $app->get('/cocheras/', function (Request $request, Response $response) {
 //       $params = $request->getParams();

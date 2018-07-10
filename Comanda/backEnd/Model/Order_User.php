@@ -7,18 +7,19 @@ class Order_User
 	public $userRole;
 	
 
-	//  public function Ingresar()
-	//  {
-	// 	//var_dump($this);die;
-	// 	$objetoAccesoDato = AccesoDatos::dameUnObjetoAcceso();
-	// 	$consulta = $objetoAccesoDato->RetornarConsulta("INSERT INTO Ingresos_empleados 
-	// 	(fecha_hora_ingreso,id_empleado)
-	// 	VALUES(:fecha_hora_ingreso,:id_empleado)");
-	// 	$consulta->bindValue(':fecha_hora_ingreso',$this->fecha_hora_ingreso, PDO::PARAM_STR);
-	// 	$consulta->bindValue(':id_empleado',$this->id_empleado, PDO::PARAM_INT);
-	// 	$consulta->execute();
-	// 	return $objetoAccesoDato->RetornarUltimoIdInsertado();
-	//  }
+	 public function Add()
+	 {
+		//var_dump($this);die;
+		$ctx = AccesoDatos::dameUnObjetoAcceso();
+		$query = $ctx->RetornarConsulta("INSERT INTO order_user 
+		(userId,orderId,userRole)
+		VALUES(:userId,:orderId,:userRole)");
+		$query->bindValue(':userId',$this->userId, PDO::PARAM_INT);
+		$query->bindValue(':orderId',$this->orderId, PDO::PARAM_INT);
+		$query->bindValue(':userRole',$this->userRole, PDO::PARAM_INT);
+		$query->execute();
+		return $ctx->RetornarUltimoIdInsertado();
+	 }
 
 
   	// public static function TraerIngresos()
