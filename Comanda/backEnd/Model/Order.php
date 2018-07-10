@@ -17,7 +17,20 @@ class Order
 	public $producerPoints;
 	public $createdDate;
 	public $takenDate;
+	public $finishDate;
 
+	public static function GetOrderById($id) 
+	{
+			$ctx = AccesoDatos::dameUnObjetoAcceso(); 
+			$query =$ctx->RetornarConsulta("select  * from `order` WHERE id =
+				:id");
+			$query->bindValue(':id',$id, PDO::PARAM_INT);
+			$query->execute();
+			$o= $query->fetchObject('Order');
+      		return $o;				
+
+			
+	}
 	public function Add()
 	{
 	    // var_dump($this);die();
@@ -37,7 +50,6 @@ class Order
 	}	
 	public static function Take($orderId, $status, $estimatedTime, $takenDate)
 	{
-	    // var_dump($this);die();
 	   $ctx = AccesoDatos::dameUnObjetoAcceso();
 	   $query = $ctx->RetornarConsulta("UPDATE `order` SET
 	   `status`=:status,estimatedTime=:estimatedTime,takenDate=:takenDate
@@ -45,6 +57,18 @@ class Order
 	   $query->bindValue(':status',$status, PDO::PARAM_INT);
 	   $query->bindValue(':estimatedTime',$estimatedTime, PDO::PARAM_INT);
 	   $query->bindValue(':takenDate',$takenDate, PDO::PARAM_STR);	   
+	   $query->bindValue(':id',$orderId, PDO::PARAM_INT);	   
+	   return $query->execute();
+	}
+	public static function Finish($orderId, $status, $realTime, $finishDate)
+	{
+	   $ctx = AccesoDatos::dameUnObjetoAcceso();
+	   $query = $ctx->RetornarConsulta("UPDATE `order` SET
+	   `status`=:status,realTime=:realTime,finishDate=:finishDate
+	   WHERE id = :id");
+	   $query->bindValue(':status',$status, PDO::PARAM_INT);
+	   $query->bindValue(':realTime',$realTime, PDO::PARAM_INT);
+	   $query->bindValue(':finishDate',$finishDate, PDO::PARAM_STR);	   
 	   $query->bindValue(':id',$orderId, PDO::PARAM_INT);	   
 	   return $query->execute();
 	}

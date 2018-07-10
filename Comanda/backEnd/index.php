@@ -72,6 +72,8 @@ $app->group('/Table', function () {
 
       $this->put('/', \OrderService::class . ':TakeOrder');//producer only
 
+      $this->put('/finish/', \OrderService::class . ':FinishOrder');//producer only
+
       
  })->add(\MWparaAutentificar::class . ':VerificarToken');
  

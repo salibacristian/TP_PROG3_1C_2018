@@ -120,7 +120,43 @@ public function TakeOrder($request, $response, $args) {
     $objDelaRespuesta->mensaje = $e->getMessage();
   }
 
-  return $response->withJson($objDelaRespuesta, 200);;
+  return $response->withJson($objDelaRespuesta, 200);
+}
+
+public function FinishOrder($request, $response, $args) {
+  $objDelaRespuesta= new stdclass();
+  try{
+  $params = $request->getParsedBody();
+  $orderId= $params['orderId'];
+
+  $order = Order::GetOrderById($orderId);
+  if($order == null){
+    $objDelaRespuesta->mensaje = "No se encontro la orden";
+    return $response->withJson($objDelaRespuesta, 200);
+  }
+
+  //seteo hora local 
+  date_default_timezone_set('America/Argentina/Buenos_Aires');
+  
+  $now = new Datetime();
+  $finishDate = $now->format('Y-m-d H:i:s');   
+  // var_dump($now);
+  // var_dump(new Datetime($order->takenDate));die();
+  //calculo demora
+   $diff = date_diff(new Datetime($order->takenDate), $now);
+   //var_dump($diff);
+   $realTime =  $diff->i;
+   // var_dump($realTime);
+
+  Order::Finish($orderId,OrderStatus::Finished,$realTime,$finishDate);
+
+   $objDelaRespuesta= new stdclass();
+   $objDelaRespuesta->mensaje = "Pedido listo";
+  }catch(Exception $e){
+    $objDelaRespuesta->mensaje = $e->getMessage();
+  }
+
+  return $response->withJson($objDelaRespuesta, 200);
 }
 
  	// public function TraerUno($request, $response, $args) {
