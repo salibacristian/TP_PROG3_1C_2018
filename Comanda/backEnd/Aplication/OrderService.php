@@ -1,75 +1,100 @@
 <?php
-require_once './Model/Operacion.php';
-require_once './Model/Cochera.php';
-require_once './Model/Ingreso_empleado.php';
+require_once './Model/Order.php';
+require_once './Model/Order_User.php';
+require_once './Model/RestaurantTable.php';
+require_once './Model/Role.php';
+require_once './Model/TableStatus.php';
 require_once './Aplication/SessionService.php';
 
-class OperacionService extends Operacion //implements IApiUsable
+class OrderService extends Order 
 {
- 	public function TraerUno($request, $response, $args) {
-      $params = $request->getParams();   
-      $dom=$params['dominio'];
-    	$o=Operacion::TraerOperacionPorDominio($dom);
-     	$newResponse = $response->withJson($o, 200);  
-    	return $newResponse;
-    }
-     public function TraerTodos($request, $response, $args) {
-      	$operaciones=Operacion::TraerOperaciones();
-     	$response = $response->withJson($operaciones, 200);  
-    	return $response;
-    }
-      public function CargarUno($request, $response, $args) {
-      $ArrayDeParametros = $request->getParsedBody();
-      //var_dump($ArrayDeParametros);
-      $dominio= $ArrayDeParametros['dominio'];
-      $marca= $ArrayDeParametros['marca'];
-      $cocheraId= $ArrayDeParametros['cocheraId'];
-      $id_empleado_ingreso= $_SESSION['userId'];
-       //seteo hora local 
-          date_default_timezone_set('America/Argentina/Buenos_Aires');
-          $today = getdate();
-          //var_dump($today);
 
-          //GUARDO LA FECHA ACTUAL EN FORMATO PROPIO (dd/mm/yyyy hh:mm)
-          $fecha_hora_ingreso = $today['mday']."/".$today['mon']."/".$today['year']." "
-          .$today['hours'].":".$today['minutes'];
+  static function randomKey($length) {
+    $pool = array_merge(range(0,9), range('a', 'z'),range('A', 'Z'));
+    $key = '';
+    for($i=0; $i < $length; $i++) {
+        $key .= $pool[mt_rand(0, count($pool) - 1)];
+    }
+    return $key;
+}
+
+  public function NewOrder($request, $response, $args) {
+    $objDelaRespuesta= new stdclass();
+    try{
+    $params = $request->getParsedBody();
+    $tableId= $params['tableId'];
+    $sectorId= $params['sectorId'];
+    $id_waiter= $_SESSION['userId'];
+    $code = self::randomKey(5);
+
+     //seteo hora local 
+    date_default_timezone_set('America/Argentina/Buenos_Aires');
+    // $today = getdate();
+    //var_dump($today);
+    //FORMATO PROPIO (dd/mm/yyyy hh:mm)
+    // $fecha_hora_ingreso = $today['mday']."/".$today['mon']."/".$today['year']." "
+    // .$today['hours'].":".$today['minutes'];
+
+    $now = new Datetime();
+    $fecha_hora_ingreso = $now->format('Y-m-d H:i:s');   
+
+    $o = new Order();
+    
+    $o->tableId=$tableId;
+    $o->sectorId=$sectorId;
+    $o->code=$code;
+    $o->createdDate=$fecha_hora_ingreso;    
+  
+    $archivos = $request->getUploadedFiles();
+    $destino="./fotosPedidos/";
+    //var_dump($archivos);
+    //var_dump($archivos['foto']);
+
+    $nombreAnterior=$archivos['foto']->getClientFilename();
+    $extension= explode(".", $nombreAnterior)  ;
+    //var_dump($nombreAnterior);die();
+    $extension=array_reverse($extension);
+    $o->imgUrl=$code.".".$extension[0];
+
+    $orderId = $o->Add();
+
+    $archivos['foto']->moveTo($destino.$code.".".$extension[0]);
+  
+     //cargo relacion con usuario moso
+     $ou = new Order_User();
      
-      $color= $ArrayDeParametros['color'];
+     $ou->userId=$id_waiter;
+     $ou->orderId=$orderId;
+     $ou->userRole= Role::Waiter;
 
-      $o = new Operacion();
-      $o->dominio=$dominio;
-      $o->marca=$marca;
-      $o->cocheraId=$cocheraId;
-      $o->id_empleado_ingreso=$id_empleado_ingreso;
-      $o->fecha_hora_ingreso=$fecha_hora_ingreso;
-      $o->color=$color;
+     $ou->Add();
 
-      //ocupo cochera
-      Cochera::Modificar($o->cocheraId,1,$dominio);
+     //actualizo status mesa
+    // var_dump($tableId);die();
+    RestaurantTable::ChangeStatus($tableId,TableStatus::Waiting);
 
-      $archivos = $request->getUploadedFiles();
-      $destino="./fotosVehiculos/";
-      //var_dump($archivos);
-      //var_dump($archivos['foto']);
+     $objDelaRespuesta= new stdclass();
+     $objDelaRespuesta->mensaje = "Exito";
+    }catch(Exception $e){
+      $objDelaRespuesta->mensaje = $e->getMessage();
+    }
 
-      $nombreAnterior=$archivos['foto']->getClientFilename();
-      $extension= explode(".", $nombreAnterior)  ;
-      //var_dump($nombreAnterior);die();
-      $extension=array_reverse($extension);
-      $o->foto=$dominio.".".$extension[0];
-      $o->IngresarOperacion();
-      $archivos['foto']->moveTo($destino.$dominio.".".$extension[0]);
-      $objDelaRespuesta= new stdclass();
-      $objDelaRespuesta->mensaje = "Exito";  
+    return $response->withJson($objDelaRespuesta, 200);;
+}
 
-      $i = new Ingreso_empleado();
-      $i->fecha_hora_ingreso = $fecha_hora_ingreso;
-      $i->id_empleado = $id_empleado_ingreso;
-      $i->Ingresar();
-
-      return $response->withJson($objDelaRespuesta, 200);;
-	}
-	
+ 	// public function TraerUno($request, $response, $args) {
+  //     $params = $request->getParams();   
+  //     $dom=$params['dominio'];
+  //   	$o=Operacion::TraerOperacionPorDominio($dom);
+  //    	$newResponse = $response->withJson($o, 200);  
+  //   	return $newResponse;
+  //   }
+  //    public function TraerTodos($request, $response, $args) {
+  //     	$operaciones=Operacion::TraerOperaciones();
+  //    	$response = $response->withJson($operaciones, 200);  
+  //   	return $response;
+  //   }
+     
     //   public function BorrarUno($request, $response, $args) {
     //  	$ArrayDeParametros = $request->getParsedBody();
     //  	$id=$ArrayDeParametros['id'];

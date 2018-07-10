@@ -15,7 +15,25 @@ class Order
 	public $tablePoints;
 	public $waiterPoints;
 	public $producerPoints;
+	public $createdDate;
 
+	public function Add()
+	{
+	    // var_dump($this);die();
+	   $ctx = AccesoDatos::dameUnObjetoAcceso();
+	   $query = $ctx->RetornarConsulta("INSERT INTO `order` 
+	   (tableId,sectorId,imgUrl,status,code,isCanceled,createdDate)
+	   VALUES(:tableId,:sectorId,:imgUrl,:status,:code,:isCanceled,:createdDate)");
+	   $query->bindValue(':tableId',$this->tableId, PDO::PARAM_INT);
+	   $query->bindValue(':sectorId',$this->sectorId, PDO::PARAM_INT);
+	   $query->bindValue(':imgUrl',$this->imgUrl, PDO::PARAM_STR);
+	   $query->bindValue(':status', 0, PDO::PARAM_INT);
+	   $query->bindValue(':code', $this->code, PDO::PARAM_STR);
+	   $query->bindValue(':isCanceled', 0, PDO::PARAM_INT);
+	   $query->bindValue(':createdDate', $this->createdDate, PDO::PARAM_STR);
+	   $query->execute();
+	   return $ctx->RetornarUltimoIdInsertado();
+	}	
 	// public static function TraerCocheras($libres) 
 	// {
 	// 	$enUso = $libres? 0 : 1;
