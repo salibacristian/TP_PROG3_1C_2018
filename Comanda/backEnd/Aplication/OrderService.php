@@ -34,7 +34,19 @@ class OrderService extends Order
   public function GetOrderForClient($request, $response, $args) { 
     $params = $request->getParams(); 
     $o=Order::OrderForClient($params['tableCode'],$params['orderCode']);
-    return $response->withJson($o, 200);  
+    $objDelaRespuesta= new stdclass();
+    $objDelaRespuesta->remainingTime = null;
+    // var_dump($o);die();
+    if($o->takenDate != null){
+      //seteo hora local 
+      date_default_timezone_set('America/Argentina/Buenos_Aires');
+      $now = new Datetime();
+      $diff = date_diff(new Datetime($o->takenDate), $now);
+      $realTime =  $diff->i;
+      $objDelaRespuesta->remainingTime = $o->estimatedTime - $realTime;
+    }
+    $objDelaRespuesta->order = $o;
+    return $response->withJson($objDelaRespuesta, 200);  
   }
 
   static function randomKey($length) {

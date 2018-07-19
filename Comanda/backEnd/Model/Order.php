@@ -116,14 +116,14 @@ class Order
 	{
 		// var_dump($orderCode);die();
 		$ctx = AccesoDatos::dameUnObjetoAcceso(); 
-		$query =$ctx->RetornarConsulta("select * 
+		$query =$ctx->RetornarConsulta("select o.id,o.status,o.code,o.estimatedTime,o.realTime,o.amount,o.takenDate,o.finishDate
 		from `order` o
 		inner join restauranttable t on o.tableId = t.id
 		WHERE (:orderCode = o.code) and (:tableCode = t.code)");	
 		$query->bindValue(':orderCode',$orderCode, PDO::PARAM_STR);			
 		$query->bindValue(':tableCode',$tableCode, PDO::PARAM_STR);			
 		$query->execute();
-		return $query->fetchAll(PDO::FETCH_CLASS,'Order');
+		return $query->fetchObject('Order');
 			
 	}
 	
