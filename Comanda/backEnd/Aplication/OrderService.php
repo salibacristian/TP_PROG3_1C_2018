@@ -31,6 +31,12 @@ class OrderService extends Order
     return $response;
   }
 
+  public function GetOrderForClient($request, $response, $args) { 
+    $params = $request->getParams(); 
+    $o=Order::OrderForClient($params['tableCode'],$params['orderCode']);
+    return $response->withJson($o, 200);  
+  }
+
   static function randomKey($length) {
     $pool = array_merge(range(0,9), range('a', 'z'),range('A', 'Z'));
     $key = '';
@@ -253,83 +259,83 @@ public function CancelOrder($request, $response, $args) {
     //   	return $newResponse;
     // }
      
-     public function ModificarUno($request, $response, $args) {
-       $ArrayDeParametros = $request->getParsedBody();
-        // var_dump($ArrayDeParametros);die();
-        $o=Operacion::TraerOperacionPorDominio($ArrayDeParametros['dominio']);
-        if($o != null){
-          $o->id_empleado_salida = $_SESSION['userId'];
+    //  public function ModificarUno($request, $response, $args) {
+    //    $ArrayDeParametros = $request->getParsedBody();
+    //     // var_dump($ArrayDeParametros);die();
+    //     $o=Operacion::TraerOperacionPorDominio($ArrayDeParametros['dominio']);
+    //     if($o != null){
+    //       $o->id_empleado_salida = $_SESSION['userId'];
 
-          //seteo hora local 
-          date_default_timezone_set('America/Argentina/Buenos_Aires');
-          $today = getdate();
-          //var_dump($today);
+    //       //seteo hora local 
+    //       date_default_timezone_set('America/Argentina/Buenos_Aires');
+    //       $today = getdate();
+    //       //var_dump($today);
 
-          //GUARDO LA FECHA ACTUAL EN FORMATO PROPIO (dd/mm/yyyy hh:mm)
-          $o->fecha_hora_salida = $today['mday']."/".$today['mon']."/".$today['year']." "
-          .$today['hours'].":".$today['minutes'];
-          //var_dump($o->fecha_hora_salida);
+    //       //GUARDO LA FECHA ACTUAL EN FORMATO PROPIO (dd/mm/yyyy hh:mm)
+    //       $o->fecha_hora_salida = $today['mday']."/".$today['mon']."/".$today['year']." "
+    //       .$today['hours'].":".$today['minutes'];
+    //       //var_dump($o->fecha_hora_salida);
           
-          //...............................................................................
+    //       //...............................................................................
 
-          //necesito la fecha de ingreso a datetime para sacar el diff 
-          $dateAndTime = explode(" ", $o->fecha_hora_ingreso);//separo hora de la fecha
-          $date = explode("/", $dateAndTime[0]);//separo dia,mes y año
-          $time = explode(":", $dateAndTime[1]);//separo hora y minuto
-          $day = intval($date[0],10);
-          $month = intval($date[1],10);
-          $year = intval($date[2],10);
-          $hour = intval($time[0],10);
-          $min = intval($time[1],10);
-          $mktime = mktime($hour,$min,0,$month,$day,$year);
-          $ingreso = new DateTime(date(DATE_ATOM,$mktime));
-          // var_dump($ingreso);
+    //       //necesito la fecha de ingreso a datetime para sacar el diff 
+    //       $dateAndTime = explode(" ", $o->fecha_hora_ingreso);//separo hora de la fecha
+    //       $date = explode("/", $dateAndTime[0]);//separo dia,mes y año
+    //       $time = explode(":", $dateAndTime[1]);//separo hora y minuto
+    //       $day = intval($date[0],10);
+    //       $month = intval($date[1],10);
+    //       $year = intval($date[2],10);
+    //       $hour = intval($time[0],10);
+    //       $min = intval($time[1],10);
+    //       $mktime = mktime($hour,$min,0,$month,$day,$year);
+    //       $ingreso = new DateTime(date(DATE_ATOM,$mktime));
+    //       // var_dump($ingreso);
 
-          //...............................................................................
+    //       //...............................................................................
 
-          //ahora que tengo la fecha de ingreso saco dif con now
-          $now = new DateTime(date(DATE_ATOM));
-          // var_dump($now);
-          $diff = date_diff($ingreso, $now);
-          //var_dump($diff);
-          $o->tiempo =  $diff->h + ($diff->d * 24);
-          // var_dump($o->tiempo);
-          $o->importe = $this->CalculateImport($o->tiempo);
-          // var_dump($o->importe); die();
+    //       //ahora que tengo la fecha de ingreso saco dif con now
+    //       $now = new DateTime(date(DATE_ATOM));
+    //       // var_dump($now);
+    //       $diff = date_diff($ingreso, $now);
+    //       //var_dump($diff);
+    //       $o->tiempo =  $diff->h + ($diff->d * 24);
+    //       // var_dump($o->tiempo);
+    //       $o->importe = $this->CalculateImport($o->tiempo);
+    //       // var_dump($o->importe); die();
 
-          //libero cochera
-          Cochera::Modificar($o->cocheraId,0,null);
+    //       //libero cochera
+    //       Cochera::Modificar($o->cocheraId,0,null);
 
-          $resultado =$o->Modificar();    
-          $objDelaRespuesta= new stdclass();
-          //var_dump($resultado);
-          $objDelaRespuesta->mensaje=$resultado? 'Exito':'Error';
-          $objDelaRespuesta->importe=$o->importe;
+    //       $resultado =$o->Modificar();    
+    //       $objDelaRespuesta= new stdclass();
+    //       //var_dump($resultado);
+    //       $objDelaRespuesta->mensaje=$resultado? 'Exito':'Error';
+    //       $objDelaRespuesta->importe=$o->importe;
 
-          return $response->withJson($objDelaRespuesta, 200); 
-        }	
-        $objDelaRespuesta= new stdclass();
-        $objDelaRespuesta->mensaje = "El auto no esta";
-       return $response->withJson($objDelaRespuesta, 200);
-    }
+    //       return $response->withJson($objDelaRespuesta, 200); 
+    //     }	
+    //     $objDelaRespuesta= new stdclass();
+    //     $objDelaRespuesta->mensaje = "El auto no esta";
+    //    return $response->withJson($objDelaRespuesta, 200);
+    // }
 
-     function CalculateImport($hours){
-      $days = 0;
-      $halfDays = 0;
-      $resto = $hours;
-      if($resto >= 24)
-      {
-          $days = intval($resto / 24);
-          $resto %= 24;
-      }
-      if($resto >= 12)
-      {
-        $halfDays = intval($resto / 12);
-        $resto %= 12;
-      }
+    //  function CalculateImport($hours){
+    //   $days = 0;
+    //   $halfDays = 0;
+    //   $resto = $hours;
+    //   if($resto >= 24)
+    //   {
+    //       $days = intval($resto / 24);
+    //       $resto %= 24;
+    //   }
+    //   if($resto >= 12)
+    //   {
+    //     $halfDays = intval($resto / 12);
+    //     $resto %= 12;
+    //   }
 
-      return ($resto * 10) + ($halfDays * 90) + ($days * 170);
-    }
+    //   return ($resto * 10) + ($halfDays * 90) + ($days * 170);
+    // }
 
 
 }

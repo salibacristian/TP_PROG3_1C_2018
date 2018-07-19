@@ -80,6 +80,12 @@ $app->group('/Table', function () {
 
       
  })->add(\MWparaAutentificar::class . ':VerificarToken');
+
+ $app->group('/Client', function () {
+  
+      $this->get('/', \OrderService::class . ':GetOrderForClient');
+  
+ });
  
  
 // $app->get('/cocheras/', function (Request $request, Response $response) {

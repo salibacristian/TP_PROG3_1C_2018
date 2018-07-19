@@ -107,6 +107,36 @@ class Order
 	   $query->bindValue(':id',$orderId, PDO::PARAM_INT);	   
 	   return $query->execute();
 	}
+
+	//////////////////////////////////////
+	//CLIENTS
+	//////////////////////////////////////
+	
+	public static function OrderForClient($tableCode,$orderCode) 
+	{
+		// var_dump($orderCode);die();
+		$ctx = AccesoDatos::dameUnObjetoAcceso(); 
+		$query =$ctx->RetornarConsulta("select * 
+		from `order` o
+		inner join restauranttable t on o.tableId = t.id
+		WHERE (:orderCode = o.code) and (:tableCode = t.code)");	
+		$query->bindValue(':orderCode',$orderCode, PDO::PARAM_STR);			
+		$query->bindValue(':tableCode',$tableCode, PDO::PARAM_STR);			
+		$query->execute();
+		return $query->fetchAll(PDO::FETCH_CLASS,'Order');
+			
+	}
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 	// public static function TraerCocheras($libres) 
 	// {
 	// 	$enUso = $libres? 0 : 1;
