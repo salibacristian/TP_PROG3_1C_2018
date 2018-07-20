@@ -49,37 +49,37 @@ class OrderService extends Order
     return $response->withJson($objDelaRespuesta, 200);  
   }
 
-  public function AnswerSurvey($request, $response, $args) {
-    $objDelaRespuesta= new stdclass();
-    try{
-    $params = $request->getParsedBody();
-    $orderId= $params['orderId'];
-    $orderId= $params['orderId'];
-    $orderId= $params['orderId'];
-    $orderId= $params['orderId'];
-    $orderId= $params['orderId'];
-    $orderId= $params['orderId'];
+  // public function AnswerSurvey($request, $response, $args) {
+  //   $objDelaRespuesta= new stdclass();
+  //   try{
+  //   $params = $request->getParsedBody();
+  //   $orderId= $params['orderId'];
+  //   $orderId= $params['orderId'];
+  //   $orderId= $params['orderId'];
+  //   $orderId= $params['orderId'];
+  //   $orderId= $params['orderId'];
+  //   $orderId= $params['orderId'];
 
   
-    $order = Order::GetOrderById($orderId);
-    if($order == null){
-      $objDelaRespuesta->mensaje = "No se encontro la orden";
-      return $response->withJson($objDelaRespuesta, 200);
-    }
-    if($order->status != OrderStatus::Finished){
-      $objDelaRespuesta->mensaje = "La orden no está terminada";
-      return $response->withJson($objDelaRespuesta, 200);
-    }  
+  //   $order = Order::GetOrderById($orderId);
+  //   if($order == null){
+  //     $objDelaRespuesta->mensaje = "No se encontro la orden";
+  //     return $response->withJson($objDelaRespuesta, 200);
+  //   }
+  //   if($order->status != OrderStatus::Finished){
+  //     $objDelaRespuesta->mensaje = "La orden no está terminada";
+  //     return $response->withJson($objDelaRespuesta, 200);
+  //   }  
    
-    Order::CommentAndRate($orderId,);
+  //   Order::CommentAndRate($orderId,);
 
-     $objDelaRespuesta->mensaje = "Gracias por su opinión";
-    }catch(Exception $e){
-      $objDelaRespuesta->mensaje = $e->getMessage();
-    }
+  //    $objDelaRespuesta->mensaje = "Gracias por su opinión";
+  //   }catch(Exception $e){
+  //     $objDelaRespuesta->mensaje = $e->getMessage();
+  //   }
   
-    return $response->withJson($objDelaRespuesta, 200);
-  }
+  //   return $response->withJson($objDelaRespuesta, 200);
+  // }
 
   static function randomKey($length) {
     $pool = array_merge(range(0,9), range('a', 'z'),range('A', 'Z'));
@@ -94,8 +94,9 @@ class OrderService extends Order
     $objDelaRespuesta= new stdclass();
     try{
     $params = $request->getParsedBody();
+    // var_dump($params);die();
     $tableId= $params['tableId'];
-    $sectorId= $params['sectorId'];
+    $itemIds= $params['itemIds'];
     $id_waiter= $_SESSION['userId'];
     $code = self::randomKey(5);
 
@@ -110,10 +111,8 @@ class OrderService extends Order
     $now = new Datetime();
     $fecha_hora_ingreso = $now->format('Y-m-d H:i:s');   
 
-    $o = new Order();
-    
+    $o = new Order();    
     $o->tableId=$tableId;
-    $o->sectorId=$sectorId;
     $o->code=$code;
     $o->createdDate=$fecha_hora_ingreso;    
   
@@ -140,6 +139,16 @@ class OrderService extends Order
      $ou->userRole= Role::Waiter;
 
      $ou->Add();
+
+     //cargo relacion con items
+     $oi = new Order_Item();
+     foreach ($itemIds as $itemId) {
+      $oi->orderId=$orderId;
+      $oi->itemId=$itemId;
+      $oi->Add();
+     }
+     
+
 
      //actualizo status mesa
     // var_dump($tableId);die();
