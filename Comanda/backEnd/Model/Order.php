@@ -3,10 +3,9 @@ class Order
 {
 	public $id;
 	public $tableId;
-	public $sectorId;
-	public $imgUrl;
-	public $status;
 	public $code;
+	public $status;
+	public $imgUrl;	
 	public $estimatedTime;
 	public $realTime;
 	public $isCanceled;

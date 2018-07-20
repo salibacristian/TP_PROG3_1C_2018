@@ -49,6 +49,38 @@ class OrderService extends Order
     return $response->withJson($objDelaRespuesta, 200);  
   }
 
+  public function AnswerSurvey($request, $response, $args) {
+    $objDelaRespuesta= new stdclass();
+    try{
+    $params = $request->getParsedBody();
+    $orderId= $params['orderId'];
+    $orderId= $params['orderId'];
+    $orderId= $params['orderId'];
+    $orderId= $params['orderId'];
+    $orderId= $params['orderId'];
+    $orderId= $params['orderId'];
+
+  
+    $order = Order::GetOrderById($orderId);
+    if($order == null){
+      $objDelaRespuesta->mensaje = "No se encontro la orden";
+      return $response->withJson($objDelaRespuesta, 200);
+    }
+    if($order->status != OrderStatus::Finished){
+      $objDelaRespuesta->mensaje = "La orden no está terminada";
+      return $response->withJson($objDelaRespuesta, 200);
+    }  
+   
+    Order::CommentAndRate($orderId,);
+
+     $objDelaRespuesta->mensaje = "Gracias por su opinión";
+    }catch(Exception $e){
+      $objDelaRespuesta->mensaje = $e->getMessage();
+    }
+  
+    return $response->withJson($objDelaRespuesta, 200);
+  }
+
   static function randomKey($length) {
     $pool = array_merge(range(0,9), range('a', 'z'),range('A', 'Z'));
     $key = '';
