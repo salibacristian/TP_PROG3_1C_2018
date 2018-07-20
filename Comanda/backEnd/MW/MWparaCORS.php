@@ -8,7 +8,7 @@ class MWparaCORS
    * @apiVersion 0.1.0
    * @apiName HabilitarCORSTodos
    * @apiGroup MIDDLEWARE
-   * @apiDescription  Por medio de este MiddleWare habilito que se pueda acceder desde cualquier servidor
+   * @apiDescription  ASDADASDSADSADADA
    *
    * @apiParam {ServerRequestInterface} request  El objeto REQUEST.
  * @apiParam {ResponseInterface} response El objeto RESPONSE.
