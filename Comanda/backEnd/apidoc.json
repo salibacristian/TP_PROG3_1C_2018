@@ -1,0 +1,20 @@
+{
+  "name": "API REST COMANDA",
+  "version": "0.1.0",
+  "description": "",
+  "title": "API REST COMANDA",
+  "url" : "http://localhost:8080/TP_PROG3_1C_2018/Comanda/backEnd",
+  "header": {
+    "title": "Presentación de la API",
+    "filename": "documentacion/cabecera.html"
+  },
+  "order": [
+  "comanda",
+    "Getcomanda",
+    "Postcomanda"
+  ],
+  "template": {
+  	"withCompare": true,
+  	"withGenerator": true
+  }
+}

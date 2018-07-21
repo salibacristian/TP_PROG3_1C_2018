@@ -278,40 +278,7 @@ public function CancelOrder($request, $response, $args) {
   return $response->withJson($objDelaRespuesta, 200);
 }
 
- 	// public function TraerUno($request, $response, $args) {
-  //     $params = $request->getParams();   
-  //     $dom=$params['dominio'];
-  //   	$o=Operacion::TraerOperacionPorDominio($dom);
-  //    	$newResponse = $response->withJson($o, 200);  
-  //   	return $newResponse;
-  //   }
-  //    public function TraerTodos($request, $response, $args) {
-  //     	$operaciones=Operacion::TraerOperaciones();
-  //    	$response = $response->withJson($operaciones, 200);  
-  //   	return $response;
-  //   }
-     
-    //   public function BorrarUno($request, $response, $args) {
-    //  	$ArrayDeParametros = $request->getParsedBody();
-    //  	$id=$ArrayDeParametros['id'];
-    //  	$v= new Vehiculo();
-    //  	$v->id=$id;
-    //  	$cantidadDeBorrados=$v->BorrarVehiculo();
-
-    //  	$objDelaRespuesta= new stdclass();
-	//     $objDelaRespuesta->cantidad=$cantidadDeBorrados;
-	//     if($cantidadDeBorrados>0)
-	//     	{
-	//     		 $objDelaRespuesta->resultado="algo borro!!!";
-	//     	}
-	//     	else
-	//     	{
-	//     		$objDelaRespuesta->resultado="no Borro nada!!!";
-	//     	}
-	//     $newResponse = $response->withJson($objDelaRespuesta, 200);  
-    //   	return $newResponse;
-    // }
-     
+ 
     //  public function ModificarUno($request, $response, $args) {
     //    $ArrayDeParametros = $request->getParsedBody();
     //     // var_dump($ArrayDeParametros);die();

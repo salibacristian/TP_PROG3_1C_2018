@@ -44,28 +44,6 @@ class RestaurantTableService extends RestaurantTable
       	return $newResponse;
     }
      
- 	// public static function maxima($variable){
-  //     $maxima = new stdclass();
-  //     $maxima->numeroDeOpereaciones = 0;
-  //     foreach ($variable as $value) {
-  //       if($maxima->numeroDeOpereaciones < $value->numeroDeOpereaciones)
-  //         $maxima = $value;
-  //     }
-  //     return $maxima;
-  //   }
-
-  //  public static function minima($variable){
-  //     $min = new stdclass();
-  //     $min->numeroDeOpereaciones = 99999;
-  //     foreach ($variable as $value) {
-  //       if($min->numeroDeOpereaciones > $value->numeroDeOpereaciones)
-  //         $min = $value;
-  //     }
-  //     return $min;
-  //   }
-
-
-
 }
 
 ?>
