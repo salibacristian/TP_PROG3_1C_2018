@@ -6,7 +6,6 @@
  	require_once './Model/Role.php';
 class MWparaAutentificar
 {
- 
 	public static function VerificarUsuario($request, $response, $next) {
          
 
