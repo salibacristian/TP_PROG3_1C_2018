@@ -60,10 +60,9 @@ class Order
 	    // var_dump($this);die();
 	   $ctx = AccesoDatos::dameUnObjetoAcceso();
 	   $query = $ctx->RetornarConsulta("INSERT INTO `order` 
-	   (tableId,sectorId,imgUrl,status,code,isCanceled,createdDate)
-	   VALUES(:tableId,:sectorId,:imgUrl,:status,:code,:isCanceled,:createdDate)");
+	   (tableId,imgUrl,status,code,isCanceled,createdDate)
+	   VALUES(:tableId,:imgUrl,:status,:code,:isCanceled,:createdDate)");
 	   $query->bindValue(':tableId',$this->tableId, PDO::PARAM_INT);
-	   $query->bindValue(':sectorId',$this->sectorId, PDO::PARAM_INT);
 	   $query->bindValue(':imgUrl',$this->imgUrl, PDO::PARAM_STR);
 	   $query->bindValue(':status', 0, PDO::PARAM_INT);
 	   $query->bindValue(':code', $this->code, PDO::PARAM_STR);

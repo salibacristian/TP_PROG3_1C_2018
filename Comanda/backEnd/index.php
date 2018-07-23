@@ -12,6 +12,7 @@ require_once './Aplication/SessionService.php';
 require_once './Aplication/UserService.php';
 require_once './Aplication/RestaurantTableService.php';
 require_once './Aplication/OrderService.php';
+require_once './Aplication/ItemService.php';
 
 $config['displayErrorDetails'] = true;
 $config['addContentLengthHeader'] = false;
@@ -153,7 +154,7 @@ $app->get('/logout/', function (Request $request, Response $response) {
    */
     $this->get('/logs/', \UserService::class . ':GetLogs');
      
-})->add(\MWparaAutentificar::class . ':VerificarPerfil')->add(\MWparaAutentificar::class . ':VerificarToken');
+})->add(\MWparaAutentificar::class . ':VerificarPerfil')->add(\MWparaAutentificar::class . ':VerificarToken');//ADMIN ONLY
 
 $app->group('/Table', function () {
    /**
@@ -203,7 +204,7 @@ $app->group('/Table', function () {
 
  $app->group('/Order', function () {
   
-      $this->get('/', \OrderService::class . ':GetOrders');
+      $this->get('/', \OrderService::class . ':GetOrders');//any
   
       $this->post('/', \OrderService::class . ':NewOrder');//waiter only
 
@@ -217,8 +218,9 @@ $app->group('/Table', function () {
  })->add(\MWparaAutentificar::class . ':VerificarToken');
 
  $app->group('/Client', function () {
-  
-      $this->get('/', \OrderService::class . ':GetOrderForClient');
+      $this->get('/', \ItemService::class . ':GetLetter');
+      $this->get('/order/', \OrderService::class . ':GetOrderForClient');
+
   
  });
 

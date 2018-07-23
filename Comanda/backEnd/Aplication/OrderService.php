@@ -1,10 +1,9 @@
 <?php
 require_once './Model/Order.php';
 require_once './Model/Order_User.php';
+require_once './Model/Order_Item.php';
 require_once './Model/RestaurantTable.php';
-require_once './Model/Role.php';
-require_once './Model/TableStatus.php';
-require_once './Model/OrderStatus.php';
+require_once './Model/BaseEnum.php';
 require_once './Aplication/SessionService.php';
 
 class OrderService extends Order 
@@ -48,6 +47,8 @@ class OrderService extends Order
     $objDelaRespuesta->order = $o;
     return $response->withJson($objDelaRespuesta, 200);  
   }
+
+  
 
   // public function AnswerSurvey($request, $response, $args) {
   //   $objDelaRespuesta= new stdclass();
@@ -93,11 +94,13 @@ class OrderService extends Order
   public function NewOrder($request, $response, $args) {
     $objDelaRespuesta= new stdclass();
     try{
-    $params = $request->getParsedBody();
-    // var_dump($params);die();
-    $tableId= $params['tableId'];
-    $itemIds= $params['itemIds'];
-    $id_waiter= $_SESSION['userId'];
+    $body = $request->getParsedBody();
+    $params = json_decode($body['request']);
+     //var_dump($params);die();
+    $tableId= $params->tableId;
+    $items= $params->items;
+    $id_user= $_SESSION['userId'];
+    $role_user= $_SESSION['role'];
     $code = self::randomKey(5);
 
      //seteo hora local 
@@ -134,26 +137,23 @@ class OrderService extends Order
      //cargo relacion con usuario moso
      $ou = new Order_User();
      
-     $ou->userId=$id_waiter;
+     $ou->userId=$id_user;
      $ou->orderId=$orderId;
-     $ou->userRole= Role::Waiter;
+     $ou->userRole= $role_user;//aqui deberia ser waiter (o admin)
 
      $ou->Add();
 
      //cargo relacion con items
      $oi = new Order_Item();
-     foreach ($itemIds as $itemId) {
+     foreach ($items as $item) {
       $oi->orderId=$orderId;
-      $oi->itemId=$itemId;
+      $oi->itemId=$item->id;
+      $oi->units=$item->units;
       $oi->Add();
      }
      
-
-
      //actualizo status mesa
-    // var_dump($tableId);die();
     RestaurantTable::ChangeStatus($tableId,TableStatus::Waiting);
-
      $objDelaRespuesta= new stdclass();
      $objDelaRespuesta->mensaje = $code;
     }catch(Exception $e){
