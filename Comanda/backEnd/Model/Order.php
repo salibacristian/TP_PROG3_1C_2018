@@ -55,6 +55,22 @@ class Order
 
 			
 	}
+
+	public static function GetOrderItems($id) 
+	{
+			$ctx = AccesoDatos::dameUnObjetoAcceso(); 
+			$query =$ctx->RetornarConsulta("
+			select o.id as orderId, o.status, i.sectorId, i.id as itemId, oi.units, i.estimatedTime  
+			from `order`o
+			inner join `order_item`oi on o.id = oi.orderId
+			inner join `item`i on oi.itemId = i.id
+			WHERE o.id = :id
+				");
+			$query->bindValue(':id',$id, PDO::PARAM_INT);
+			$query->execute();
+			return $query->fetchAll(PDO::FETCH_CLASS,'OrderItemDto');	
+			
+	}
 	public function Add()
 	{
 	    // var_dump($this);die();
@@ -198,6 +214,16 @@ class Order
 	//   } 
 
 
+
+}
+
+class OrderItemDto{
+	public $orderId;
+	public $status;
+	public $sectorId;
+	public $itemId;
+	public $units;
+	public $estimatedTime;
 
 }
 ?>

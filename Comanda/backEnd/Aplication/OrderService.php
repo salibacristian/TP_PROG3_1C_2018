@@ -8,6 +8,7 @@ require_once './Aplication/SessionService.php';
 
 class OrderService extends Order 
 {
+  ///cada rol tiene una vista distinta del get orders
   public function GetOrders($request, $response, $args) {
     $role= $_SESSION['role'];
     $sector= $_SESSION['sector'];
@@ -22,7 +23,7 @@ class OrderService extends Order
         break;
         case Role::Producer:
         $status = OrderStatus::Pending;
-        $o=Order::Orders($status,$sector);
+        $o=Order_Item::OrderItems($status,$sector);
         break;
     }
 
@@ -139,7 +140,7 @@ class OrderService extends Order
      
      $ou->userId=$id_user;
      $ou->orderId=$orderId;
-     $ou->userRole= $role_user;//aqui deberia ser waiter (o admin)
+     $ou->userRole= $role_user;//aqui deberia ser waiter 
 
      $ou->Add();
 
@@ -168,15 +169,16 @@ public function TakeOrder($request, $response, $args) {
   try{
   $params = $request->getParsedBody();
   $orderId= $params['orderId'];
-  $estimatedTime= $params['estimatedTime'];
-  $id_producer= $_SESSION['userId'];
+  $id_user= $_SESSION['userId'];
+  $role_user= $_SESSION['role'];  
+  $sector_user= $_SESSION['sector'];  
 
-  $order = Order::GetOrderById($orderId);
-  if($order == null){
+  $orderItems = Order::GetOrderItems($orderId);
+  if($orderItems == null ||  count($orderItems) == 0){
     $objDelaRespuesta->mensaje = "No se encontro la orden";
     return $response->withJson($objDelaRespuesta, 200);
   }
-  if($order->status == OrderStatus::Canceled){
+  if($orderItems[0]->status == OrderStatus::Canceled){
     $objDelaRespuesta->mensaje = "La orden esta cancelada";
     return $response->withJson($objDelaRespuesta, 200);
   }
@@ -190,16 +192,34 @@ public function TakeOrder($request, $response, $args) {
   // .$today['hours'].":".$today['minutes'];
 
   $now = new Datetime();
-  $takenDate = $now->format('Y-m-d H:i:s');   
-
-  Order::Take($orderId,OrderStatus::InProgress,$estimatedTime,$takenDate);
+  $takenDate = $now->format('Y-m-d H:i:s');  
+  
+//tomo los items correspondientes
+   foreach ($orderItems as $key => $item) {
+     if($item->sectorId == $sector_user){
+        Order_Item::Take($orderId,$item->itemId,$takenDate);      
+     }
+   }
+  //la order se considera tomada cuando se toma el item de cocina o todos sus items
+    //en ese caso seteo el tiempo estimado
+    //(un cocinero prepara items DE UN PEDIDO a la vez)
+  //si un usr tomo el pedido es porque tiene algun item de su sector
+  $pendingItems = Order_Item::GetPendingItems($orderId);
+  $estimatedTime = null;
+  if($sector_user == Sector::Cocina || count($pendingItems) == 0)
+   {
+      $estimatedTime = max(array_map(function($oi){return $oi->estimatedTime;},$orderItems)); 
+      $a = array_map(function($oi){return $oi->estimatedTime;},$orderItems);
+      // var_dump($estimatedTime);die();   
+      Order::Take($orderId,OrderStatus::InProgress,$estimatedTime,$takenDate);
+   } 
 
    //cargo relacion con usuario productor
    $ou = new Order_User();
    
-   $ou->userId=$id_producer;
+   $ou->userId=$id_user;
    $ou->orderId=$orderId;
-   $ou->userRole= Role::Producer;
+   $ou->userRole= $role_user;//deberia ser producer
 
    $ou->Add();
 
