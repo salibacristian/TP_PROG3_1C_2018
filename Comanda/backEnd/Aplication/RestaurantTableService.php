@@ -1,5 +1,4 @@
 <?php
-// require_once './Model/Operacion.php';
 require_once './Model/RestaurantTable.php';
 require_once './Aplication/SessionService.php';
 
@@ -43,29 +42,16 @@ class RestaurantTableService extends RestaurantTable
 	    $newResponse = $response->withJson($objDelaRespuesta, 200);  
       	return $newResponse;
     }
+
+    public function CloseTable($request, $response, $args) {
+      $params = $request->getParsedBody();
+      RestaurantTable::ChangeStatus($params['id'],0);
+      $objDelaRespuesta= new stdclass();
+     $objDelaRespuesta->mensaje="Mesa cerrada";
+     $newResponse = $response->withJson($objDelaRespuesta, 200);  
+       return $newResponse;
+   }
      
- 	// public static function maxima($variable){
-  //     $maxima = new stdclass();
-  //     $maxima->numeroDeOpereaciones = 0;
-  //     foreach ($variable as $value) {
-  //       if($maxima->numeroDeOpereaciones < $value->numeroDeOpereaciones)
-  //         $maxima = $value;
-  //     }
-  //     return $maxima;
-  //   }
-
-  //  public static function minima($variable){
-  //     $min = new stdclass();
-  //     $min->numeroDeOpereaciones = 99999;
-  //     foreach ($variable as $value) {
-  //       if($min->numeroDeOpereaciones > $value->numeroDeOpereaciones)
-  //         $min = $value;
-  //     }
-  //     return $min;
-  //   }
-
-
-
 }
 
 ?>

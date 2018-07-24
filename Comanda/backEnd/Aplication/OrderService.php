@@ -1,29 +1,28 @@
 <?php
 require_once './Model/Order.php';
 require_once './Model/Order_User.php';
+require_once './Model/Order_Item.php';
 require_once './Model/RestaurantTable.php';
-require_once './Model/Role.php';
-require_once './Model/TableStatus.php';
-require_once './Model/OrderStatus.php';
+require_once './Model/BaseEnum.php';
 require_once './Aplication/SessionService.php';
 
 class OrderService extends Order 
 {
+  ///cada rol tiene una vista distinta del get orders
   public function GetOrders($request, $response, $args) {
     $role= $_SESSION['role'];
     $sector= $_SESSION['sector'];
     // var_dump($role);
 		// var_dump($sector);die();
     switch ($role) {
-      case Role::Administrator:
+      case Role::Administrator://debe ver todo
         $o=Order::AllOrders();
         break;
-        case Role::Waiter:
-        //todo: pedidos terminados de todos los sectores
+        case Role::Waiter://pedidos terminados de todos los sectores
+        $o=Order::Orders(OrderStatus::Finished);
         break;
-        case Role::Producer:
-        $status = OrderStatus::Pending;
-        $o=Order::Orders($status,$sector);
+        case Role::Producer://debe ver los pendientes
+        $o=Order_Item::PendingOrderItems($sector);
         break;
     }
 
@@ -47,6 +46,36 @@ class OrderService extends Order
     }
     $objDelaRespuesta->order = $o;
     return $response->withJson($objDelaRespuesta, 200);  
+  }  
+
+  public function AnswerSurvey($request, $response, $args) {
+    $objDelaRespuesta= new stdclass();
+    try{
+    $params = $request->getParsedBody();
+    $orderId= $params['orderId'];
+    $comment= $params['comment'];
+    $tablePoints= $params['tablePoints'];
+    $waiterPoints= $params['waiterPoints'];
+    $producerPoints= $params['producerPoints'];
+  
+    $order = Order::GetOrderById($orderId);
+    if($order == null){
+      $objDelaRespuesta->mensaje = "No se encontro la orden";
+      return $response->withJson($objDelaRespuesta, 200);
+    }
+    if($order->status != OrderStatus::Delivered){
+      $objDelaRespuesta->mensaje = "La orden no ha sido entregada";
+      return $response->withJson($objDelaRespuesta, 200);
+    }  
+   
+    Order::CommentAndRate($orderId,$comment,$tablePoints,$waiterPoints,$producerPoints);
+
+     $objDelaRespuesta->mensaje = "Gracias por su opinión";
+    }catch(Exception $e){
+      $objDelaRespuesta->mensaje = $e->getMessage();
+    }
+  
+    return $response->withJson($objDelaRespuesta, 200);
   }
 
   static function randomKey($length) {
@@ -61,10 +90,13 @@ class OrderService extends Order
   public function NewOrder($request, $response, $args) {
     $objDelaRespuesta= new stdclass();
     try{
-    $params = $request->getParsedBody();
-    $tableId= $params['tableId'];
-    $sectorId= $params['sectorId'];
-    $id_waiter= $_SESSION['userId'];
+    $body = $request->getParsedBody();
+    $params = json_decode($body['request']);
+     //var_dump($params);die();
+    $tableId= $params->tableId;
+    $items= $params->items;
+    $id_user= $_SESSION['userId'];
+    $role_user= $_SESSION['role'];
     $code = self::randomKey(5);
 
      //seteo hora local 
@@ -78,10 +110,8 @@ class OrderService extends Order
     $now = new Datetime();
     $fecha_hora_ingreso = $now->format('Y-m-d H:i:s');   
 
-    $o = new Order();
-    
+    $o = new Order();    
     $o->tableId=$tableId;
-    $o->sectorId=$sectorId;
     $o->code=$code;
     $o->createdDate=$fecha_hora_ingreso;    
   
@@ -103,16 +133,23 @@ class OrderService extends Order
      //cargo relacion con usuario moso
      $ou = new Order_User();
      
-     $ou->userId=$id_waiter;
+     $ou->userId=$id_user;
      $ou->orderId=$orderId;
-     $ou->userRole= Role::Waiter;
+     $ou->userRole= $role_user;//aqui deberia ser waiter 
 
      $ou->Add();
 
+     //cargo relacion con items
+     $oi = new Order_Item();
+     foreach ($items as $item) {
+      $oi->orderId=$orderId;
+      $oi->itemId=$item->id;
+      $oi->units=$item->units;
+      $oi->Add();
+     }
+     
      //actualizo status mesa
-    // var_dump($tableId);die();
     RestaurantTable::ChangeStatus($tableId,TableStatus::Waiting);
-
      $objDelaRespuesta= new stdclass();
      $objDelaRespuesta->mensaje = $code;
     }catch(Exception $e){
@@ -127,15 +164,16 @@ public function TakeOrder($request, $response, $args) {
   try{
   $params = $request->getParsedBody();
   $orderId= $params['orderId'];
-  $estimatedTime= $params['estimatedTime'];
-  $id_producer= $_SESSION['userId'];
+  $id_user= $_SESSION['userId'];
+  $role_user= $_SESSION['role'];  
+  $sector_user= $_SESSION['sector'];  
 
-  $order = Order::GetOrderById($orderId);
-  if($order == null){
+  $orderItems = Order::GetOrderItems($orderId);
+  if($orderItems == null ||  count($orderItems) == 0){
     $objDelaRespuesta->mensaje = "No se encontro la orden";
     return $response->withJson($objDelaRespuesta, 200);
   }
-  if($order->status == OrderStatus::Canceled){
+  if($orderItems[0]->status == OrderStatus::Canceled){
     $objDelaRespuesta->mensaje = "La orden esta cancelada";
     return $response->withJson($objDelaRespuesta, 200);
   }
@@ -149,16 +187,34 @@ public function TakeOrder($request, $response, $args) {
   // .$today['hours'].":".$today['minutes'];
 
   $now = new Datetime();
-  $takenDate = $now->format('Y-m-d H:i:s');   
-
-  Order::Take($orderId,OrderStatus::InProgress,$estimatedTime,$takenDate);
+  $takenDate = $now->format('Y-m-d H:i:s');  
+  
+//tomo los items correspondientes
+   foreach ($orderItems as $key => $item) {
+     if($item->sectorId == $sector_user){
+        Order_Item::Take($orderId,$item->itemId,$takenDate);      
+     }
+   }
+  //la order se considera tomada cuando se toma el item de cocina o todos sus items
+    //en ese caso seteo el tiempo estimado
+    //(un cocinero prepara items DE UN PEDIDO a la vez)
+  //si un usr tomo el pedido es porque tiene algun item de su sector
+  $pendingItems = Order_Item::GetPendingItems($orderId);
+  $estimatedTime = null;
+  if($sector_user == Sector::Cocina || count($pendingItems) == 0)
+   {
+      $estimatedTime = max(array_map(function($oi){return $oi->estimatedTime;},$orderItems)); 
+      $a = array_map(function($oi){return $oi->estimatedTime;},$orderItems);
+      // var_dump($estimatedTime);die();   
+      Order::Take($orderId,OrderStatus::InProgress,$estimatedTime,$takenDate);
+   } 
 
    //cargo relacion con usuario productor
    $ou = new Order_User();
    
-   $ou->userId=$id_producer;
+   $ou->userId=$id_user;
    $ou->orderId=$orderId;
-   $ou->userRole= Role::Producer;
+   $ou->userRole= $role_user;//deberia ser producer
 
    $ou->Add();
 
@@ -174,19 +230,27 @@ public function TakeOrder($request, $response, $args) {
 
 public function FinishOrder($request, $response, $args) {
   $objDelaRespuesta= new stdclass();
+  $objDelaRespuesta->mensaje = "";
   try{
   $params = $request->getParsedBody();
   $orderId= $params['orderId'];
+  $id_user= $_SESSION['userId'];
+  $role_user= $_SESSION['role'];  
+  $sector_user= $_SESSION['sector'];
 
   $order = Order::GetOrderById($orderId);
-  if($order == null){
+  // var_dump($order);die();
+  $orderItems = Order::GetOrderItems($orderId);
+  // var_dump($orderItems);die();
+  if($orderItems == null ||  count($orderItems) == 0){
     $objDelaRespuesta->mensaje = "No se encontro la orden";
     return $response->withJson($objDelaRespuesta, 200);
   }
-  if($order->status == OrderStatus::Canceled){
+  if($orderItems[0]->status == OrderStatus::Canceled){
     $objDelaRespuesta->mensaje = "La orden esta cancelada";
     return $response->withJson($objDelaRespuesta, 200);
   }
+  
 
   //seteo hora local 
   date_default_timezone_set('America/Argentina/Buenos_Aires');
@@ -195,22 +259,98 @@ public function FinishOrder($request, $response, $args) {
   $finishDate = $now->format('Y-m-d H:i:s');   
   // var_dump($now);
   // var_dump(new Datetime($order->takenDate));die();
-  //calculo demora
+  
+   //finalizo los items correspondientes
+   foreach ($orderItems as $key => $item) {
+    if($item->sectorId == $sector_user && $item->takenDate != null){
+       Order_Item::Finish($orderId,$item->itemId,$finishDate);      
+    }
+  }
+
+ //la order se considera finalizada cuando se finalizan todos los items  
+   //en ese caso seteo el tiempo real
+ //si un usr finalizo el pedido es porque tiene algun item de su sector
+ $takenItems = Order_Item::GetTakenItems($orderId);
+//  var_dump($takenItems);die();
+ $pendingItems = Order_Item::GetPendingItems($orderId);
+  //var_dump($pendingItems);die(); 
+ $realTime = null;
+
+ if((count($takenItems) == 0 && count($pendingItems) == 0))
+  {
+     //calculo demora
    $diff = date_diff(new Datetime($order->takenDate), $now);
-   //var_dump($diff);
    $realTime =  $diff->i;
-   // var_dump($realTime);
+     Order::Finish($orderId,OrderStatus::Finished,$realTime,$finishDate);
+     $objDelaRespuesta->mensaje = "Todos los pedidos finalizados";     
+  } 
+  else
+    $objDelaRespuesta->mensaje = " Pedido finalizado";
 
-  Order::Finish($orderId,OrderStatus::Finished,$realTime,$finishDate);
-
-   $objDelaRespuesta= new stdclass();
-   $objDelaRespuesta->mensaje = "Pedido listo";
   }catch(Exception $e){
     $objDelaRespuesta->mensaje = $e->getMessage();
   }
 
   return $response->withJson($objDelaRespuesta, 200);
 }
+
+public function DeliverOrder($request, $response, $args) {
+  $objDelaRespuesta= new stdclass();
+  try{
+  $params = $request->getParsedBody();
+  $orderId= $params['orderId']; 
+  $order = Order::GetOrderById($orderId);
+  if($order == null){
+    $objDelaRespuesta->mensaje = "No se encontro la orden";
+    return $response->withJson($objDelaRespuesta, 200);
+  } 
+
+  Order::Deliver($orderId);  
+
+   //actualizo status mesa
+    RestaurantTable::ChangeStatus($order->tableId,TableStatus::Eating);
+
+   $objDelaRespuesta= new stdclass();
+   $objDelaRespuesta->mensaje = "Pedido entregado";
+  }catch(Exception $e){
+    $objDelaRespuesta->mensaje = $e->getMessage();
+  }
+
+  return $response->withJson($objDelaRespuesta, 200);
+}
+
+public function PayOrder($request, $response, $args) {
+  $objDelaRespuesta= new stdclass();
+  try{
+  $params = $request->getParsedBody();
+  $tableCode= $params['tableCode']; 
+  $orderCode= $params['orderCode']; 
+  $order = Order::OrderForClient($tableCode,$orderCode);
+  if($order == null){
+    $objDelaRespuesta->mensaje = "No se encontro la orden";
+    return $response->withJson($objDelaRespuesta, 200);
+  } 
+
+   //actualizo status mesa
+    RestaurantTable::ChangeStatus($order->tableId,TableStatus::Paying);
+    //calculo total
+    $total = 0;
+    $orderItems = Order::GetOrderItems($order->id);
+    foreach ($orderItems as $key => $i) {
+      $total += $i->amount * $i->units;
+    }
+    
+    $order->SetAmount($total);
+
+   $objDelaRespuesta= new stdclass();
+   $objDelaRespuesta->mensaje = "Total $".$total;
+  }catch(Exception $e){
+    $objDelaRespuesta->mensaje = $e->getMessage();
+  }
+
+  return $response->withJson($objDelaRespuesta, 200);
+}
+
 
 public function CancelOrder($request, $response, $args) {
   $objDelaRespuesta= new stdclass();
@@ -237,40 +377,7 @@ public function CancelOrder($request, $response, $args) {
   return $response->withJson($objDelaRespuesta, 200);
 }
 
- 	// public function TraerUno($request, $response, $args) {
-  //     $params = $request->getParams();   
-  //     $dom=$params['dominio'];
-  //   	$o=Operacion::TraerOperacionPorDominio($dom);
-  //    	$newResponse = $response->withJson($o, 200);  
-  //   	return $newResponse;
-  //   }
-  //    public function TraerTodos($request, $response, $args) {
-  //     	$operaciones=Operacion::TraerOperaciones();
-  //    	$response = $response->withJson($operaciones, 200);  
-  //   	return $response;
-  //   }
-     
-    //   public function BorrarUno($request, $response, $args) {
-    //  	$ArrayDeParametros = $request->getParsedBody();
-    //  	$id=$ArrayDeParametros['id'];
-    //  	$v= new Vehiculo();
-    //  	$v->id=$id;
-    //  	$cantidadDeBorrados=$v->BorrarVehiculo();
-
-    //  	$objDelaRespuesta= new stdclass();
-	//     $objDelaRespuesta->cantidad=$cantidadDeBorrados;
-	//     if($cantidadDeBorrados>0)
-	//     	{
-	//     		 $objDelaRespuesta->resultado="algo borro!!!";
-	//     	}
-	//     	else
-	//     	{
-	//     		$objDelaRespuesta->resultado="no Borro nada!!!";
-	//     	}
-	//     $newResponse = $response->withJson($objDelaRespuesta, 200);  
-    //   	return $newResponse;
-    // }
-     
+ 
     //  public function ModificarUno($request, $response, $args) {
     //    $ArrayDeParametros = $request->getParsedBody();
     //     // var_dump($ArrayDeParametros);die();

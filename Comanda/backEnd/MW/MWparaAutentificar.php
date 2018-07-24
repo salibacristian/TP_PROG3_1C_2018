@@ -3,10 +3,9 @@
 	require_once './AutentificadorJWT.php';
  	require_once './Aplication/UserService.php';
  	require_once './Aplication/SessionService.php';
- 	require_once './Model/Role.php';
+ 	require_once './Model/BaseEnum.php';
 class MWparaAutentificar
 {
- 
 	public static function VerificarUsuario($request, $response, $next) {
          
 
