@@ -8,7 +8,7 @@ class Order_Item
     public $takenDate;
 	public $finishDate;
 
-	public static function OrderItems($status,$sector) 
+	public static function PendingOrderItems($sector) 
 	{
 		// var_dump($status);
 		// var_dump($sector);die();
@@ -16,14 +16,12 @@ class Order_Item
 			$query =$ctx->RetornarConsulta("select 					
 			orderId, itemId, units
 			FROM `order_item`oi
-			inner join `order` o on oi.orderId = o.id  
 			inner join `item` i on oi.itemId = i.id
 			WHERE (:sector = i.`sectorId`)
-			AND (:status = o.`status`)
+			AND oi.takenDate is null			
 			GROUP BY orderId, itemId, units
 			");	
 			$query->bindValue(':sector',$sector, PDO::PARAM_INT);			
-			$query->bindValue(':status',$status, PDO::PARAM_INT);		
 			$query->execute();
 			return $query->fetchAll(PDO::FETCH_CLASS,'Order_Item');
 			
@@ -55,13 +53,36 @@ class Order_Item
 	   return $query->execute();
 	}
 
+	public static function Finish($orderId, $itemId, $finishDate)
+	{
+	   $ctx = AccesoDatos::dameUnObjetoAcceso();
+	   $query = $ctx->RetornarConsulta("UPDATE `order_item` SET
+	   finishDate=:finishDate
+	   WHERE orderId = :orderId AND itemId = :itemId");
+	   $query->bindValue(':finishDate',$finishDate, PDO::PARAM_STR);	   
+	   $query->bindValue(':orderId',$orderId, PDO::PARAM_INT);	   
+	   $query->bindValue(':itemId',$itemId, PDO::PARAM_INT);	   
+	   return $query->execute();
+	}
+
 	public static function GetPendingItems($orderId)
 	{
 	   $ctx = AccesoDatos::dameUnObjetoAcceso();
 	   $query = $ctx->RetornarConsulta("SELECT * FROM `order_item` 
-	  WHERE orderId = :orderId AND takenDate = null");
-	   $query->bindValue(':orderId',$orderId, PDO::PARAM_INT);	   
-	  return $query->fetchObject('Order_Item');
+	  WHERE orderId = :orderId AND takenDate is null");
+	   $query->bindValue(':orderId',$orderId, PDO::PARAM_INT);	
+	   $query->execute();   
+	  return $query->fetchAll(PDO::FETCH_CLASS,'Order_Item');
+	}
+
+	public static function GetTakenItems($orderId)
+	{
+	   $ctx = AccesoDatos::dameUnObjetoAcceso();
+	   $query = $ctx->RetornarConsulta("SELECT * FROM `order_item` 
+	  WHERE orderId = :orderId AND takenDate is not null AND finishDate is null");
+	   $query->bindValue(':orderId',$orderId, PDO::PARAM_INT);	 
+	   $query->execute();  
+	  return $query->fetchAll(PDO::FETCH_CLASS,'Order_Item');
 	}
 }
 ?>

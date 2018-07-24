@@ -18,22 +18,19 @@ class Order
 	public $takenDate;
 	public $finishDate;
 
-	public static function Orders($status,$sector) 
+	public static function Orders($status) 
 	{
 		// var_dump($status);
 		// var_dump($sector);die();
 			$ctx = AccesoDatos::dameUnObjetoAcceso(); 
 			$query =$ctx->RetornarConsulta("select * from `order`
-			WHERE (:sector = `sectorId`)
-			AND (:status = `status`)
+			WHERE :status = `status`
 			");	
-			$query->bindValue(':sector',$sector, PDO::PARAM_INT);			
 			$query->bindValue(':status',$status, PDO::PARAM_INT);		
 			$query->execute();
 			return $query->fetchAll(PDO::FETCH_CLASS,'Order');
 			
 	}
-	///hago este metodo de mierd@ porque no se por que mierd@ tira SQLSTATE[HY093] si pongo este where WHERE (:sector = `sectorId` OR :sector = null)	AND (:status = `status` OR :status = null)
 	public static function AllOrders() 
 	{
 			$ctx = AccesoDatos::dameUnObjetoAcceso(); 
@@ -60,7 +57,7 @@ class Order
 	{
 			$ctx = AccesoDatos::dameUnObjetoAcceso(); 
 			$query =$ctx->RetornarConsulta("
-			select o.id as orderId, o.status, i.sectorId, i.id as itemId, oi.units, i.estimatedTime  
+			select o.id as orderId, o.status, i.sectorId, i.id as itemId, oi.units, i.estimatedTime, oi.takenDate, i.amount  
 			from `order`o
 			inner join `order_item`oi on o.id = oi.orderId
 			inner join `item`i on oi.itemId = i.id
@@ -122,6 +119,17 @@ class Order
 	   return $query->execute();
 	}
 
+	public static function Deliver($orderId)
+	{
+	   $ctx = AccesoDatos::dameUnObjetoAcceso();
+	   $query = $ctx->RetornarConsulta("UPDATE `order` SET
+	   `status`=:status
+	   WHERE id = :id");	
+	   $query->bindValue(':status',4, PDO::PARAM_INT);   
+	   $query->bindValue(':id',$orderId, PDO::PARAM_INT);	   
+	   return $query->execute();
+	}
+
 	//////////////////////////////////////
 	//CLIENTS
 	//////////////////////////////////////
@@ -130,7 +138,7 @@ class Order
 	{
 		// var_dump($orderCode);die();
 		$ctx = AccesoDatos::dameUnObjetoAcceso(); 
-		$query =$ctx->RetornarConsulta("select o.id,o.status,o.code,o.estimatedTime,o.realTime,o.amount,o.takenDate,o.finishDate
+		$query =$ctx->RetornarConsulta("select o.id, o.tableId, o.status,o.code,o.estimatedTime,o.realTime,o.amount,o.takenDate,o.finishDate
 		from `order` o
 		inner join restauranttable t on o.tableId = t.id
 		WHERE (:orderCode = o.code) and (:tableCode = t.code)");	
@@ -224,6 +232,8 @@ class OrderItemDto{
 	public $itemId;
 	public $units;
 	public $estimatedTime;
+	public $takenDate;
+	public $amount;
 
 }
 ?>

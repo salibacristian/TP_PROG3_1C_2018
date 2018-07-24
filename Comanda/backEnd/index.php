@@ -199,6 +199,18 @@ $app->group('/Table', function () {
  *     
    */
      $this->delete('/', \RestaurantTableService::class . ':DeleteTable')->add(\MWparaAutentificar::class . ':VerificarPerfil');//admin only
+        /**
+   * @api {put} / 
+   * @apiVersion 0.1.0
+   * @apiName closeTable
+   * @apiDescription cierra una mesa una vez cobrado el importe
+   * @apiGroup Table
+   * @apiParam {text} id id de la mesa a cerrar
+ * @apiParamExample id:
+ *     id: "1"
+ *     
+   */
+     $this->put('/', \RestaurantTableService::class . ':CloseTable')->add(\MWparaAutentificar::class . ':VerificarPerfil');//admin only
       
  })->add(\MWparaAutentificar::class . ':VerificarToken');
 
@@ -212,7 +224,11 @@ $app->group('/Table', function () {
 
       $this->put('/finish/', \OrderService::class . ':FinishOrder');//producer only
 
+      $this->put('/deliver/', \OrderService::class . ':DeliverOrder');//waiter only
+
       $this->put('/cancel/', \OrderService::class . ':CancelOrder');//admin only(cerrar mesa)
+
+      $this->put('/pay/', \OrderService::class . ':PayOrder');//waiter only
 
       
  })->add(\MWparaAutentificar::class . ':VerificarToken');

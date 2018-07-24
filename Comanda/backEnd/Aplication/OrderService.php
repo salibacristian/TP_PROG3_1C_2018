@@ -15,15 +15,14 @@ class OrderService extends Order
     // var_dump($role);
 		// var_dump($sector);die();
     switch ($role) {
-      case Role::Administrator:
+      case Role::Administrator://debe ver todo
         $o=Order::AllOrders();
         break;
-        case Role::Waiter:
-        //todo: pedidos terminados de todos los sectores
+        case Role::Waiter://pedidos terminados de todos los sectores
+        $o=Order::Orders(OrderStatus::Finished);
         break;
-        case Role::Producer:
-        $status = OrderStatus::Pending;
-        $o=Order_Item::OrderItems($status,$sector);
+        case Role::Producer://debe ver los pendientes
+        $o=Order_Item::PendingOrderItems($sector);
         break;
     }
 
@@ -235,19 +234,27 @@ public function TakeOrder($request, $response, $args) {
 
 public function FinishOrder($request, $response, $args) {
   $objDelaRespuesta= new stdclass();
+  $objDelaRespuesta->mensaje = "";
   try{
   $params = $request->getParsedBody();
   $orderId= $params['orderId'];
+  $id_user= $_SESSION['userId'];
+  $role_user= $_SESSION['role'];  
+  $sector_user= $_SESSION['sector'];
 
   $order = Order::GetOrderById($orderId);
-  if($order == null){
+  // var_dump($order);die();
+  $orderItems = Order::GetOrderItems($orderId);
+  // var_dump($orderItems);die();
+  if($orderItems == null ||  count($orderItems) == 0){
     $objDelaRespuesta->mensaje = "No se encontro la orden";
     return $response->withJson($objDelaRespuesta, 200);
   }
-  if($order->status == OrderStatus::Canceled){
+  if($orderItems[0]->status == OrderStatus::Canceled){
     $objDelaRespuesta->mensaje = "La orden esta cancelada";
     return $response->withJson($objDelaRespuesta, 200);
   }
+  
 
   //seteo hora local 
   date_default_timezone_set('America/Argentina/Buenos_Aires');
@@ -256,22 +263,93 @@ public function FinishOrder($request, $response, $args) {
   $finishDate = $now->format('Y-m-d H:i:s');   
   // var_dump($now);
   // var_dump(new Datetime($order->takenDate));die();
-  //calculo demora
+  
+   //finalizo los items correspondientes
+   foreach ($orderItems as $key => $item) {
+    if($item->sectorId == $sector_user && $item->takenDate != null){
+       Order_Item::Finish($orderId,$item->itemId,$finishDate);      
+    }
+  }
+
+ //la order se considera finalizada cuando se finalizan todos los items  
+   //en ese caso seteo el tiempo real
+ //si un usr finalizo el pedido es porque tiene algun item de su sector
+ $takenItems = Order_Item::GetTakenItems($orderId);
+//  var_dump($takenItems);die();
+ $pendingItems = Order_Item::GetPendingItems($orderId);
+  //var_dump($pendingItems);die(); 
+ $realTime = null;
+
+ if((count($takenItems) == 0 && count($pendingItems) == 0))
+  {
+     //calculo demora
    $diff = date_diff(new Datetime($order->takenDate), $now);
-   //var_dump($diff);
    $realTime =  $diff->i;
-   // var_dump($realTime);
+     Order::Finish($orderId,OrderStatus::Finished,$realTime,$finishDate);
+  } 
 
-  Order::Finish($orderId,OrderStatus::Finished,$realTime,$finishDate);
 
-   $objDelaRespuesta= new stdclass();
-   $objDelaRespuesta->mensaje = "Pedido listo";
   }catch(Exception $e){
     $objDelaRespuesta->mensaje = $e->getMessage();
   }
 
   return $response->withJson($objDelaRespuesta, 200);
 }
+
+public function DeliverOrder($request, $response, $args) {
+  $objDelaRespuesta= new stdclass();
+  try{
+  $params = $request->getParsedBody();
+  $orderId= $params['orderId']; 
+  $order = Order::GetOrderById($orderId);
+  if($order == null){
+    $objDelaRespuesta->mensaje = "No se encontro la orden";
+    return $response->withJson($objDelaRespuesta, 200);
+  } 
+
+  Order::Deliver($orderId);  
+
+   //actualizo status mesa
+    RestaurantTable::ChangeStatus($order->tableId,TableStatus::Eating);
+
+   $objDelaRespuesta= new stdclass();
+   $objDelaRespuesta->mensaje = "Pedido entrgado";
+  }catch(Exception $e){
+    $objDelaRespuesta->mensaje = $e->getMessage();
+  }
+
+  return $response->withJson($objDelaRespuesta, 200);
+}
+
+public function PayOrder($request, $response, $args) {
+  $objDelaRespuesta= new stdclass();
+  try{
+  $params = $request->getParsedBody();
+  $tableCode= $params['tableCode']; 
+  $orderCode= $params['orderCode']; 
+  $order = Order::OrderForClient($tableCode,$orderCode);
+  if($order == null){
+    $objDelaRespuesta->mensaje = "No se encontro la orden";
+    return $response->withJson($objDelaRespuesta, 200);
+  } 
+
+   //actualizo status mesa
+    RestaurantTable::ChangeStatus($order->tableId,TableStatus::Paying);
+    $total = 0;
+    $orderItems = Order::GetOrderItems($order->id);
+    foreach ($orderItems as $key => $i) {
+      $total += $i->amount * $i->units;
+    }
+
+   $objDelaRespuesta= new stdclass();
+   $objDelaRespuesta->mensaje = "Total $".$total;
+  }catch(Exception $e){
+    $objDelaRespuesta->mensaje = $e->getMessage();
+  }
+
+  return $response->withJson($objDelaRespuesta, 200);
+}
+
 
 public function CancelOrder($request, $response, $args) {
   $objDelaRespuesta= new stdclass();

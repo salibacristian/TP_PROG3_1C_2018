@@ -1,5 +1,4 @@
 <?php
-// require_once './Model/Operacion.php';
 require_once './Model/RestaurantTable.php';
 require_once './Aplication/SessionService.php';
 
@@ -43,6 +42,15 @@ class RestaurantTableService extends RestaurantTable
 	    $newResponse = $response->withJson($objDelaRespuesta, 200);  
       	return $newResponse;
     }
+
+    public function CloseTable($request, $response, $args) {
+      $params = $request->getParsedBody();
+      RestaurantTable::ChangeStatus($params['id'],0);
+      $objDelaRespuesta= new stdclass();
+     $objDelaRespuesta->mensaje="Mesa cerrada";
+     $newResponse = $response->withJson($objDelaRespuesta, 200);  
+       return $newResponse;
+   }
      
 }
 
