@@ -13,6 +13,7 @@ require_once './Aplication/UserService.php';
 require_once './Aplication/RestaurantTableService.php';
 require_once './Aplication/OrderService.php';
 require_once './Aplication/ItemService.php';
+require_once './Aplication/StatsService.php';
 
 $config['displayErrorDetails'] = true;
 $config['addContentLengthHeader'] = false;
@@ -240,5 +241,24 @@ $app->group('/Table', function () {
 
   
  });
+
+ $app->group('/Stats', function () {
+  $this->get('/employees/', \StatsService::class . ':GetOrderEmployeesBySector');
+  $this->get('/sectors/', \StatsService::class . ':GetOrdersBySector');
+
+  $this->get('/unitsSales/', \StatsService::class . ':GetUnitsSales');
+
+  $this->get('/delayedOrders/', \StatsService::class . ':GetDelayedOrders');
+  $this->get('/canceledOrders/', \StatsService::class . ':GetCanceledOrders');
+
+  $this->get('/tableUsage/', \StatsService::class . ':GetTableUsage');
+  $this->get('/tableTotalAmount/', \StatsService::class . ':GetTableTotalAmount');
+  // $this->get('/tableAmount/', \StatsService::class . ':tableAmount');
+  
+  // $this->get('/rating/', \StatsService::class . ':GetRating');
+  $this->get('/billing/', \StatsService::class . ':Getbilling');
+
+  
+})->add(\MWparaAutentificar::class . ':VerificarPerfil')->add(\MWparaAutentificar::class . ':VerificarToken');//ADMIN ONLY;
 
 $app->run();

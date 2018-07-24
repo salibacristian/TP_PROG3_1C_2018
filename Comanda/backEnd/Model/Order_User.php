@@ -22,25 +22,6 @@ class Order_User
 	 }
 
 
-  	// public static function TraerIngresos()
-	// {
-	// 		$objetoAccesoDato = AccesoDatos::dameUnObjetoAcceso(); 
-	// 		$consulta =$objetoAccesoDato->RetornarConsulta("select * from Ingresos_empleados");
-	// 		$consulta->execute();			
-	// 		return $consulta->fetchAll(PDO::FETCH_CLASS, "Ingreso_empleado");		
-	// }
-
-	// public static function TraerIngreso($id_empleado) 
-	// {
-	// 		$objetoAccesoDato = AccesoDatos::dameUnObjetoAcceso(); 
-	// 		$consulta =$objetoAccesoDato->RetornarConsulta("select *
-	// 		from Ingresos_empleados where id_empleado = $id_empleado");
-	// 		$consulta->execute();
-	// 		$v= $consulta->fetchObject('Ingreso_empleado');
-	// 		return $v;				
-
-			
-	// }
 
 
 }

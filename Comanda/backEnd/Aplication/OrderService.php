@@ -362,6 +362,10 @@ public function CancelOrder($request, $response, $args) {
     $objDelaRespuesta->mensaje = "No se encontro la orden";
     return $response->withJson($objDelaRespuesta, 200);
   } 
+  if($order->status > 1){
+    $objDelaRespuesta->mensaje = "No se puede cancelar la orden porque ya esta hecha";
+    return $response->withJson($objDelaRespuesta, 200);
+  } 
 
   Order::Cancel($orderId);  
 

@@ -129,7 +129,15 @@ class Order
 	   $query->bindValue(':id',$orderId, PDO::PARAM_INT);	   
 	   return $query->execute();
 	}
-
+	public function SetAmount($value){
+		$ctx = AccesoDatos::dameUnObjetoAcceso();
+		$query = $ctx->RetornarConsulta("UPDATE `order` SET
+		 amount	= :amount		
+		WHERE id = :id");
+		$query->bindValue(':id',$this->id, PDO::PARAM_INT);	   
+		$query->bindValue(':amount',$value, PDO::PARAM_INT);	      
+		return $query->execute();
+	}
 	//////////////////////////////////////
 	//CLIENTS
 	//////////////////////////////////////
@@ -165,18 +173,6 @@ class Order
 	   $query->bindValue(':producerPoints',$producerPoints, PDO::PARAM_INT);	   
 	   return $query->execute();
 	}
-
-	public function SetAmount($value){
-		$ctx = AccesoDatos::dameUnObjetoAcceso();
-		$query = $ctx->RetornarConsulta("UPDATE `order` SET
-		 amount	= :amount		
-		WHERE id = :id");
-		$query->bindValue(':id',$this->id, PDO::PARAM_INT);	   
-		$query->bindValue(':amount',$value, PDO::PARAM_INT);	      
-		return $query->execute();
-	}
-
-
 
 }
 
