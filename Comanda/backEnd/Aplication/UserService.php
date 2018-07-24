@@ -118,6 +118,15 @@ class UserService extends User
             
             //var_dump($objDelaRespuesta);die();
             fclose($file);
+        }else{
+            $file = fopen("ingresos.txt", "r");
+            while (!feof($file)) {
+                $linea = fgets($file);
+                array_push($objDelaRespuesta->resultado, $linea); 
+            }
+            
+            //var_dump($objDelaRespuesta);die();
+            fclose($file);
         }
 
         return $response->withJson($objDelaRespuesta, 200);      
