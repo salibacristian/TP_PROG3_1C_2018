@@ -13,7 +13,7 @@ class User
 	public static function GetUsers() 
 	{
 			$ctx = AccesoDatos::dameUnObjetoAcceso(); 
-			$query =$ctx->RetornarConsulta("select * from user");
+			$query =$ctx->RetornarConsulta("select * from user where isDeleted = 0");
 			$query->execute();
 			$u= $query->fetchAll(PDO::FETCH_CLASS,'User');
       		return $u;		

@@ -18,16 +18,28 @@ class MWparaAutentificar
 		    $usr = UserService::CheckUser($request,$response);
 	    	if($usr != null){
 			    $objDelaRespuesta= new stdclass();
-			    $objDelaRespuesta->user =  $usr;
+					$objDelaRespuesta->user =  $usr;
+					if($usr->isDeleted)
+					{
+						$objDeLaRespuesta->mensaje="El Usuario fue eliminado";
+						$response = $response->withJson($objDelaRespuesta, 200); 
+						$response = $next($request, $response);
+					}
+					if($usr->isSuspended)
+					{
+						$objDeLaRespuesta->mensaje="El Usuario se encuentra suspendido";
+						$response = $response->withJson($objDelaRespuesta, 200); 
+						$response = $next($request, $response);
+					}
 			    $objDelaRespuesta->token=AutentificadorJWT::CrearToken(array('user' => $usr->email,'role' => $usr->role));
 
-				$data = Session::getInstance();
-				$data->set('userId', $usr->id);
-				$data->set('email', $usr->email);
-				$data->set('role', $usr->role);
-				$data->set('sector', $usr->sectorId);
-				$data->set('token', $objDelaRespuesta->token);
-				$objDelaRespuesta->session = $data->get('email');
+					$data = Session::getInstance();
+					$data->set('userId', $usr->id);
+					$data->set('email', $usr->email);
+					$data->set('role', $usr->role);
+					$data->set('sector', $usr->sectorId);
+					$data->set('token', $objDelaRespuesta->token);
+					$objDelaRespuesta->session = $data->get('email');
 				
 		    	MWparaAutentificar::RegistrarInicio($data);
 			  
