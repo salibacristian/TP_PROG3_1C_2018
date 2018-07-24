@@ -14,6 +14,7 @@ class OrderStatus extends BaseEnum {
     const InProgress = 1;
     const Finished = 2;
     const Canceled = 3;
+    const Delivered = 4;//lo pone el moso
 }
 class Role extends BaseEnum {
     const __default = self::Administrator;    

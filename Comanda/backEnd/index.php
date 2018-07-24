@@ -236,6 +236,7 @@ $app->group('/Table', function () {
  $app->group('/Client', function () {
       $this->get('/', \ItemService::class . ':GetLetter');
       $this->get('/order/', \OrderService::class . ':GetOrderForClient');
+      $this->put('/', \OrderService::class . ':AnswerSurvey');
 
   
  });

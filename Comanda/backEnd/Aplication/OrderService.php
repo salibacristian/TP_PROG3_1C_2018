@@ -46,41 +46,37 @@ class OrderService extends Order
     }
     $objDelaRespuesta->order = $o;
     return $response->withJson($objDelaRespuesta, 200);  
-  }
+  }  
 
+  public function AnswerSurvey($request, $response, $args) {
+    $objDelaRespuesta= new stdclass();
+    try{
+    $params = $request->getParsedBody();
+    $orderId= $params['orderId'];
+    $comment= $params['comment'];
+    $tablePoints= $params['tablePoints'];
+    $waiterPoints= $params['waiterPoints'];
+    $producerPoints= $params['producerPoints'];
   
-
-  // public function AnswerSurvey($request, $response, $args) {
-  //   $objDelaRespuesta= new stdclass();
-  //   try{
-  //   $params = $request->getParsedBody();
-  //   $orderId= $params['orderId'];
-  //   $orderId= $params['orderId'];
-  //   $orderId= $params['orderId'];
-  //   $orderId= $params['orderId'];
-  //   $orderId= $params['orderId'];
-  //   $orderId= $params['orderId'];
-
-  
-  //   $order = Order::GetOrderById($orderId);
-  //   if($order == null){
-  //     $objDelaRespuesta->mensaje = "No se encontro la orden";
-  //     return $response->withJson($objDelaRespuesta, 200);
-  //   }
-  //   if($order->status != OrderStatus::Finished){
-  //     $objDelaRespuesta->mensaje = "La orden no está terminada";
-  //     return $response->withJson($objDelaRespuesta, 200);
-  //   }  
+    $order = Order::GetOrderById($orderId);
+    if($order == null){
+      $objDelaRespuesta->mensaje = "No se encontro la orden";
+      return $response->withJson($objDelaRespuesta, 200);
+    }
+    if($order->status != OrderStatus::Delivered){
+      $objDelaRespuesta->mensaje = "La orden no ha sido entregada";
+      return $response->withJson($objDelaRespuesta, 200);
+    }  
    
-  //   Order::CommentAndRate($orderId,);
+    Order::CommentAndRate($orderId,$comment,$tablePoints,$waiterPoints,$producerPoints);
 
-  //    $objDelaRespuesta->mensaje = "Gracias por su opinión";
-  //   }catch(Exception $e){
-  //     $objDelaRespuesta->mensaje = $e->getMessage();
-  //   }
+     $objDelaRespuesta->mensaje = "Gracias por su opinión";
+    }catch(Exception $e){
+      $objDelaRespuesta->mensaje = $e->getMessage();
+    }
   
-  //   return $response->withJson($objDelaRespuesta, 200);
-  // }
+    return $response->withJson($objDelaRespuesta, 200);
+  }
 
   static function randomKey($length) {
     $pool = array_merge(range(0,9), range('a', 'z'),range('A', 'Z'));
@@ -286,8 +282,10 @@ public function FinishOrder($request, $response, $args) {
    $diff = date_diff(new Datetime($order->takenDate), $now);
    $realTime =  $diff->i;
      Order::Finish($orderId,OrderStatus::Finished,$realTime,$finishDate);
+     $objDelaRespuesta->mensaje = "Todos los pedidos finalizados";     
   } 
-
+  else
+    $objDelaRespuesta->mensaje = " Pedido finalizado";
 
   }catch(Exception $e){
     $objDelaRespuesta->mensaje = $e->getMessage();
@@ -313,7 +311,7 @@ public function DeliverOrder($request, $response, $args) {
     RestaurantTable::ChangeStatus($order->tableId,TableStatus::Eating);
 
    $objDelaRespuesta= new stdclass();
-   $objDelaRespuesta->mensaje = "Pedido entrgado";
+   $objDelaRespuesta->mensaje = "Pedido entregado";
   }catch(Exception $e){
     $objDelaRespuesta->mensaje = $e->getMessage();
   }
@@ -335,11 +333,14 @@ public function PayOrder($request, $response, $args) {
 
    //actualizo status mesa
     RestaurantTable::ChangeStatus($order->tableId,TableStatus::Paying);
+    //calculo total
     $total = 0;
     $orderItems = Order::GetOrderItems($order->id);
     foreach ($orderItems as $key => $i) {
       $total += $i->amount * $i->units;
     }
+    
+    $order->SetAmount($total);
 
    $objDelaRespuesta= new stdclass();
    $objDelaRespuesta->mensaje = "Total $".$total;
