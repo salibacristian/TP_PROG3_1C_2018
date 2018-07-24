@@ -258,6 +258,8 @@ $app->group('/Table', function () {
   // $this->get('/rating/', \StatsService::class . ':GetRating');
   $this->get('/billing/', \StatsService::class . ':Getbilling');
 
+  $this->get('/download/', \StatsService::class . ':Download');
+
   
 })->add(\MWparaAutentificar::class . ':VerificarPerfil')->add(\MWparaAutentificar::class . ':VerificarToken');//ADMIN ONLY;
 

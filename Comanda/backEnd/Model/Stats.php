@@ -22,6 +22,25 @@ class Stats
 			return $query->fetchAll(PDO::FETCH_CLASS,'SectorOrdersDto');	
 			
 	}
+
+	public static function OrderEmployeesBySectorForExcel($fromDate,$toDate) 
+	{
+			$ctx = AccesoDatos::dameUnObjetoAcceso(); 
+			$query =$ctx->RetornarConsulta("
+			SELECT u.sectorId, u.email, COUNT(*) as ordersCount
+			FROM `order`o 
+			INNER JOIN `order_user`ou on o.id = ou.orderId
+			INNER JOIN `user`u on ou.userId = u.id
+			WHERE o.createdDate BETWEEN DATE(:fromDate) AND DATE(:toDate)
+			AND o.status = 4
+			GROUP BY u.sectorId, u.email
+				");
+			$query->bindValue(':fromDate',$fromDate, PDO::PARAM_STR);
+			$query->bindValue(':toDate',$toDate, PDO::PARAM_STR);
+			$query->execute();
+			return $query->fetchAll(PDO::FETCH_NUM);	 
+			
+	}
 	
 	public static function OrdersBySector($fromDate,$toDate) 
 	{
