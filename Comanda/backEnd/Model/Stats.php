@@ -120,7 +120,7 @@ class Stats
 		$query =$ctx->RetornarConsulta("
 		SELECT t.code, COUNT(*) as count
 		FROM `order`o 
-		INNER JOIN `restaurantTable`t on o.tableId = t.id
+		INNER JOIN `restauranttable`t on o.tableId = t.id
 		WHERE o.createdDate BETWEEN DATE(:fromDate) AND DATE(:toDate)
 		AND o.status = 4
 		GROUP BY t.id, t.code
@@ -139,7 +139,7 @@ class Stats
 		$query =$ctx->RetornarConsulta("
 		SELECT t.code, SUM(o.amount) as amount
 		FROM `order`o 
-		INNER JOIN `restaurantTable`t on o.tableId = t.id
+		INNER JOIN `restauranttable`t on o.tableId = t.id
 		WHERE o.createdDate BETWEEN DATE(:fromDate) AND DATE(:toDate)
 		AND o.status = 4
 		GROUP BY t.id, t.code

@@ -9,7 +9,7 @@ class RestaurantTable
 	{
 			$ctx = AccesoDatos::dameUnObjetoAcceso(); 
 			$query = $ctx->RetornarConsulta("select *
-			from restaurantTable 
+			from restauranttable 
 			where status = :status");
 			$query->bindValue(':status',$status, PDO::PARAM_INT);
 			$query->execute();
@@ -23,7 +23,7 @@ class RestaurantTable
 		 try{
 		// var_dump($this);die;
 		$ctx = AccesoDatos::dameUnObjetoAcceso();
-		$query = $ctx->RetornarConsulta("INSERT INTO restaurantTable
+		$query = $ctx->RetornarConsulta("INSERT INTO restauranttable
 		(code,status)
 		VALUES(:code,:status)");
 		$query->bindValue(':code',$this->code, PDO::PARAM_STR);
@@ -40,7 +40,7 @@ class RestaurantTable
 	 		$ctx = AccesoDatos::dameUnObjetoAcceso(); 
 			$query =$ctx->RetornarConsulta("
 				delete 
-				from restaurantTable 				
+				from restauranttable 				
 				WHERE id=:id");	
 				$query->bindValue(':id',$id, PDO::PARAM_INT);		
 				$query->execute();
@@ -50,7 +50,7 @@ class RestaurantTable
 	 public static function ChangeStatus($id,$status)
 	 {
 		$ctx = AccesoDatos::dameUnObjetoAcceso();
-		$query = $ctx->RetornarConsulta("UPDATE restaurantTable SET
+		$query = $ctx->RetornarConsulta("UPDATE restauranttable SET
 		`status` = :status
 		WHERE id=:id");
 		$query->bindValue(':id',$id, PDO::PARAM_INT);
