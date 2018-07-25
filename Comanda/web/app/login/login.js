@@ -63,7 +63,9 @@ $(document).ready(function() {
   
 });
 
-var servidor="http://bpdda.esy.es/TP_BackEnd_Prog3_2017/Estacionamiento/backEnd/";
+// var servidor="http://bpdda.esy.es/comanda/backEnd/";
+var servidor="http://localhost:8080/TP_PROG3_1C_2018/Comanda/backEnd/";
+
 
 function singin()
 {
@@ -73,21 +75,22 @@ function singin()
 		 type: "post",
 		url: servidor+"login/",
 		data: {
-	        mail: _correo,
-	        clave: _clave 
+	        email: _correo,
+	        password: _clave 
     	}
    		
 	})
 	.then(function(retorno){		
 		if (typeof(Storage) !== "undefined") {
-    		localStorage.setItem('tokenEstacionamiento', retorno.token);
-    		localStorage.setItem('usrEstacionamiento', JSON.stringify(retorno.user));
+    		localStorage.setItem('tokenComanda', retorno.token);
+    		localStorage.setItem('usrComanda', JSON.stringify(retorno.user));
 		} else {
 		   console.log("Sorry! No Web Storage support..");
     }		
     if(retorno.session == _correo)
     {
-      location.href = "http://bpdda.esy.es/TP_BackEnd_Prog3_2017/Estacionamiento/web/app/dashboard/dashboard.html";
+     // location.href = "http://bpdda.esy.es/TP_PROG3_1C_2018/Comanda/web/app/dashboard/dashboard.html";
+      location.href = "http://localhost:8080/TP_PROG3_1C_2018/Comanda/web/app/dashboard/dashboard.html";
     }
     swal({
       title: retorno.mensaje,
