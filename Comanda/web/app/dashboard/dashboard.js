@@ -1,4 +1,6 @@
-var servidor="http://bpdda.esy.es/TP_BackEnd_Prog3_2017/Estacionamiento/backEnd/";
+// var servidor="http://bpdda.esy.es/comanda/backEnd/";
+var servidor="http://localhost:8080/TP_PROG3_1C_2018/Comanda/backEnd/";
+
 var dominioActual ='';
 function dibujarTabla(lista){
     var rows = '';
@@ -96,9 +98,7 @@ function strToDate(dateString){
     return new Date(year,(month-1),day,hour,min);
 }
 
-function diff_hours(dt2, dt1) 
-{
-
+function diff_hours(dt2, dt1) {
  var diff =(dt2.getTime() - dt1.getTime()) / 1000;
  diff /= (60 * 60);
  return Math.abs(Math.round(diff));
@@ -146,21 +146,20 @@ function traerOperacion(dominio){
 }
 
 function cargarCocheraModal(cocheraId){
- $("#spinnerGif").show();
- $("#cocheraModalBody").hide();
-var cocheras = JSON.parse(localStorage.getItem('cocheras'));
-var cochera = cocheras.filter(function(c){
-    return c.id == cocheraId;
-})[0];
-let icon = cochera.esParaDiscapacitados == 1? " <i class='fa fa-wheelchair' id='wheelchairIcon'></i>" : '';
-$(".numeroCochera").html(cochera.numero + " Piso " + cochera.piso + icon);
+    $("#spinnerGif").show();
+    $("#cocheraModalBody").hide();
+    var cocheras = JSON.parse(localStorage.getItem('cocheras'));
+    var cochera = cocheras.filter(function(c){
+        return c.id == cocheraId;
+    })[0];
+    let icon = cochera.esParaDiscapacitados == 1? " <i class='fa fa-wheelchair' id='wheelchairIcon'></i>" : '';
+    $(".numeroCochera").html(cochera.numero + " Piso " + cochera.piso + icon);
 
-$("#popUpCochera").modal();
+    $("#popUpCochera").modal();
 
-traerOperacion(cochera.dominio);
+    traerOperacion(cochera.dominio);
 
 }
-
 
 function cargarCocheras(param){
     $.ajax({
@@ -239,21 +238,18 @@ function retirar(){
 }
 
 $(document).ready(function() {
-    let user = JSON.parse(localStorage.getItem('usrEstacionamiento'));
-    let folderEmployeeImgaes = "../../../backEnd/fotosEmpleados/";
-     let img = user.foto != null? "<img class='porfileImg' src='" + folderEmployeeImgaes + user.foto + "'></img>" : "<span class='glyphicon glyphicon-user'></span>";
-    $("#usr").html(img + ' ' + user.mail);
+    let user = JSON.parse(localStorage.getItem('usrComanda'));
+    // let img = user.foto != null? "<img class='porfileImg' src='" + folderEmployeeImgaes + user.foto + "'></img>" : "<span class='glyphicon glyphicon-user'></span>";
+    $("#usr").html(user.mail);
 
     $(document).on("click", "#app__logout", function(e) {
         $.ajax({
             type: "get",
            url: servidor+"logout/"
               
-       });		
-     
-       
-        location.href = "http://bpdda.esy.es/TP_BackEnd_Prog3_2017/Estacionamiento/web/app/login/login.html";      
+       });            
+        //location.href = "http://bpdda.esy.es/Comanda/web/app/login/login.html";      
+        location.href = "http://localhost:8080/TP_PROG3_1C_2018/Comanda/web/app/login/login.html";      
     });
-
-    cargarCocheras(0);
+    // cargarCocheras(0);
 });
