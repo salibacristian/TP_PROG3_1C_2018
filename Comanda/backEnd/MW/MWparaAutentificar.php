@@ -15,7 +15,7 @@ class MWparaAutentificar
 		  }
 		  else
 		  {
-		    $usr = UserService::CheckUser($request,$response,$args);
+		    $usr = UserService::CheckUser($request,$response);
 	    	if($usr != null){
 			    $objDelaRespuesta= new stdclass();
 					$objDelaRespuesta->user =  $usr;
