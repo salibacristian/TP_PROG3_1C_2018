@@ -1,39 +1,78 @@
 // var servidor="http://bpdda.esy.es/comanda/backEnd/";
 var servidor="http://localhost:8080/TP_PROG3_1C_2018/Comanda/backEnd/";
+var role = 0;//client default
+var folderOrderImages = "../../../backend/fotosPedidos/";
+var tables = [
+    {
+        id:1,
+        code:'00000'
+    },
+    {
+        id:2,
+        code:'000001'
+    },
+    {
+        id:3,
+        code:'00002'
+    },
+    {
+        id:4,
+        code:'00003'
+    },
+    {
+        id:5,
+        code:'00004'
+    },
+    {
+        id:6,
+        code:'00005'
+    },
+    {
+        id:7,
+        code:'00006'
+    },
+    {
+        id:8,
+        code:'00007'
+    },
+    {
+        id:9,
+        code:'00008'
+    },
+    {
+        id:10,
+        code:'00009'
+    },
+    {
+        id:11,
+        code:'00010'
+    }
+    
+];
+var items = [];
 
-var dominioActual ='';
-function dibujarTabla(lista){
-    var rows = '';
-    lista.forEach(c => {
-        let icon = c.esParaDiscapacitados == 1? "<i class='fa fa-wheelchair' id='wheelchairIcon'></i>" : '';
-        rows += "<tr onclick='cargarCocheraModal(" + c.id + ")'>" +
-        "<td>" + c.piso + "</td>" +
-        "<td>" + c.numero + "</td>" +
-        "<td>" + c.dominio + "</td>" +        
-        "<td>" + icon + "</td>" +
-       " </tr>";
+$(document).on("change", "#selectItems", function(e) {
+    $("#newOrderInputs").html('');
+    let items = $("#selectItems").val();
+    items.forEach(i => {
+        if(i)
+        $("#newOrderInputs").append("<input type='text' value='"+ i.name +"></input>");
     });
     
-        $("#cocherasEnUso").html(rows);
+});
 
-}
-
-function ingresar(){
-
-    let dominio = $("#dominio").val();
-    let marca =$("#marca").val();
-    let color = $("#color").val();
-    let foto = $("#fotoCargada").val();
-    let cocheraId = $("#selectCochera").val();
+function loadOrder(){
+    let photo = $("#loadedPhoto").val();   
+    let tableId = tables.filter(function(x){return x.code == $("#tableCode").val();})[0].id;
+    let items = $("#selectItems").val();
     $.ajax({
         type: "post",
-       url: servidor+"Operacion/",
+       url: servidor+"Order/",
        data: {
-           dominio: dominio,
-           marca: marca, 
-           color: color ,
-           foto: foto,
-           cocheraId: cocheraId 
+            foto: photo,
+            request:{
+                tableId: tableId, 
+                items: itemIds
        }
           
    })
@@ -54,135 +93,73 @@ function ingresar(){
    });
 }
 
-function ingreso(){
-    //buscar cocheras libres
+function openNewOrderDialog(){
     $.ajax({
         type: "get",
-       url: servidor+"cocheras/",
-       data: {
-           libres: 1
-       }
-          
+        url: servidor+"Client/"          
    })
-   .then(function(retorno){		
-    console.log(retorno);
-
-    retorno.forEach(c => {
-        $("#selectCocheras").append("<option value='"+ c.id +"'>"+c.numero+" piso "+c.piso+"</option>");
+   .then(function(response){
+       items = response;		
+    response.forEach(i => {
+        $("#selectItems").append("<option value='"+ i +"'>"+i.name+"</option>");
     });
         
-        $("#popUpIngreso").modal();
+        $("#newOrderDialog").modal();
    },function(error){
        swal({
         title: "Error",
-        text: "Hubo un error al obtener las cocheras",
         type: "error",
         showCancelButton: false,
         cancelButtonClass: "btn-info",
         cancelButtonText: "cerrar"
     });
    });
-   
-    
+       
 }
 
-function strToDate(dateString){
-    let date = dateString.split(' ')[0];
-    let hourAndMin = dateString.split(' ')[1];
-    let day = date.split('/')[0];
-    let month = date.split('/')[1];
-    let year = date.split('/')[2];
-    let hour = hourAndMin.split(':')[0];
-    let min = hourAndMin.split(':')[1];
-
-    return new Date(year,(month-1),day,hour,min);
+function loadMainTable(param){
+    if(role){//usr
+        getOrders();
+    }
+    else{//client
+        getLetter();
+    }
 }
 
-function diff_hours(dt2, dt1) {
- var diff =(dt2.getTime() - dt1.getTime()) / 1000;
- diff /= (60 * 60);
- return Math.abs(Math.round(diff));
- 
-}
-
-function traerOperacion(dominio){
+function getOrders(param){
     $.ajax({
         type: "get",
-       url: servidor+"Operacion/operacion",
-       data: {
-           dominio: dominio
-       }
-          
+        url: servidor+"Order/"         
    })
-   .then(function(retorno){	
-       if(retorno.dominio == dominio){
-           dominioActual = dominio;
-       let info = retorno.dominio + ' ' + retorno.marca + ' ' + retorno.color;
-       let imgUrl = "../../../backEnd/fotosVehiculos/" + retorno.foto;
-    $(".operacionInfo").html(info); 
-    $(".vehiculoImg").html("<img alt='Sin foto' src=" + imgUrl + "></img>"); 
+   .then(function(response){
+    if(response.length > 0){
+        if(response.indexOf('Expired token') == -1){	
+            localStorage.setItem("mainList",JSON.stringify(response));
+            drawTable(response,role);
+        }
+        else{
+            swal({
+                title: "Expiro el token",
+                type: "info",
+                showCancelButton: false,
+                cancelButtonClass: "btn-info",
+                cancelButtonText: "cerrar"
+            },function(isConfirm){
+                if(isConfirm){
+                    //location.href = "http://bpdda.esy.es/Comanda/web/app/login/login.html";      
+                    location.href = "http://localhost:8080/TP_PROG3_1C_2018/Comanda/web/app/login/login.html";      
+                }
+            });
 
-    let date = strToDate(retorno.fecha_hora_ingreso);
-    $(".operacionIngreso").html(retorno.fecha_hora_ingreso); 
-    var hours = diff_hours(new Date(),date);
-    $(".tiempoAcum").html(hours + " horas");     
-         
-       }
-   $("#spinnerGif").hide();
-   $("#cocheraModalBody").show();
-   
-   },function(error){
-    $("#spinnerGif").hide();
-    $("#cocheraModalBody").show();
-       swal({
-        title: "Error",
-        text: "Hubo un error al cargar la operacion",
-        type: "error",
-        showCancelButton: false,
-        cancelButtonClass: "btn-info",
-        cancelButtonText: "cerrar"
-    });
-   });
-}
-
-function cargarCocheraModal(cocheraId){
-    $("#spinnerGif").show();
-    $("#cocheraModalBody").hide();
-    var cocheras = JSON.parse(localStorage.getItem('cocheras'));
-    var cochera = cocheras.filter(function(c){
-        return c.id == cocheraId;
-    })[0];
-    let icon = cochera.esParaDiscapacitados == 1? " <i class='fa fa-wheelchair' id='wheelchairIcon'></i>" : '';
-    $(".numeroCochera").html(cochera.numero + " Piso " + cochera.piso + icon);
-
-    $("#popUpCochera").modal();
-
-    traerOperacion(cochera.dominio);
-
-}
-
-function cargarCocheras(param){
-    $.ajax({
-        type: "get",
-       url: servidor+"cocheras/",
-       data: {
-           libres: param
-       }
-          
-   })
-   .then(function(retorno){		
-    console.log(retorno);
-    localStorage.setItem("cocheras",JSON.stringify(retorno));
-    if(retorno.length > 0){
-        dibujarTabla(retorno);
+        }
     }
     else{
-        swal('Ninguna cochera está en uso','','info');
+        swal('No hay pedidos!','','info');
     }
    },function(error){
        swal({
         title: "Error",
-        text: "Hubo un error al obtener las cocheras",
+        text: "Hubo un error al cargar el listado",
         type: "error",
         showCancelButton: false,
         cancelButtonClass: "btn-info",
@@ -191,14 +168,137 @@ function cargarCocheras(param){
    });
 }
 
-function buscarPorDominio(){
-    let dominio = $('#lookup').val().toUpperCase();
-    let tabla = $('.tableCochera').get( 0 );
+function getLetter(param){
+    $.ajax({
+        type: "get",
+        url: servidor+"Client/"         
+   })
+   .then(function(response){		
+    localStorage.setItem("mainList",JSON.stringify(response));
+    if(response.length > 0){
+        drawTable(response,role);
+    }
+    else{
+        swal('Error','No se encontro la informacion de la carta','error');
+    }
+   },function(error){
+       swal({
+        title: "Error",
+        text: "No se encontro la informacion de la carta",
+        type: "error",
+        showCancelButton: false,
+        cancelButtonClass: "btn-info",
+        cancelButtonText: "cerrar"
+    });
+   });
+}
+
+function drawTable(data,role){
+    var rows = '';
+    if(!role){//client
+    } 
+    else if(role == 1 || role == 2){//admin or waiter               
+        rows += "<thead><tr>" +
+        "<th>Codigo</th>" +
+        "<th>Mesa</th>" +
+        "<th>Foto</th>" +
+        "<th>Estado</th>" +
+        "<th>Tiempo Estimado</th>";
+        if(role == 1){
+            rows +="<th>Tiempo Real</th>" +
+            "<th>Monto</th>" +
+            "<th>Comentarios</th>" +
+            "<th>Pts. Mesa</th>" +
+            "<th>Pts. Moso</th>" +
+            "<th>Pts. Cocinero</th>" +
+            "<th>Creado</th>" +
+            "<th>Tomado</th>" +
+            "<th>Finalizado</th>";
+        }
+        rows += "</tr></thead><tbody>";
+        data.forEach(d => {
+            let img = "<img class='tableImg' alt='sin foto' src='" + folderOrderImages + d.imgUrl + "'></img>";
+            rows += "<tr onclick='openOrderDialog("+ d.id +")'>" +
+            "<td>" + d.code + "</td>" +
+            "<td>" + tables[d.tableId - 1] + "</td>" +
+            "<td>" + img + "</td>" +        
+            "<td>" + getStatus(d.status) + "</td>" +
+            "<td>" + (d.estimatedTime?d.estimatedTime:'') + "</td>";
+            if(role == 1){
+                rows += "<td>" + (d.realTime?d.realTime:'') + "</td>" +
+                "<td>" + (d.amount?d.amount:'') + "</td>" +
+                "<td>" + (d.comment?d.comment:'') + "</td>" +        
+                "<td>" + (d.tablePoints?d.tablePoints:'') + "</td>" +
+                "<td>" + (d.waiterPoints?d.waiterPoints:'') + "</td>" +
+                "<td>" + (d.producerPoints?d.producerPoints:'') + "</td>" +
+                "<td>" + d.createdDate + "</td>" +
+                "<td>" + (d.takenDate?d.takenDate:'') + "</td>" +
+                "<td>" + (d.finishDate?d.finishDate:'') + "</td>";
+            }
+            rows +=" </tr>";
+        });
+        rows += "</tbody>";        
+    }
+    else {//producer
+
+    }
+    $("#mainTable").html(rows);
+}
+
+function getTableCode(tableId){
+    let rv = "";
+    switch (tableId) {
+        case 1:   rv = "00000";       
+            break;  
+            case 2:   rv = "00001";       
+            break;
+            case 3:   rv = "00002";       
+            break;
+            case 4:   rv = "00003";       
+            break;
+            case 5:   rv = "00004";       
+            break;
+            case 6:   rv = "00005";       
+            break;
+            case 7:   rv = "00006";       
+            break;
+            case 8:   rv = "00007";       
+            break;
+            case 9:   rv = "00008";       
+            break;
+            case 10:   rv = "00009";       
+            break;
+            case 11:   rv = "00010";       
+            break;  
+    }
+    return rv;
+}
+
+function getStatus(status){
+    let rv = "";
+    switch (status) {
+        case 0:   rv = "Pendiente";       
+        break;
+        case 1:   rv = "En proceso";       
+        break;  
+        case 2:   rv = "Finalizado";       
+        break;
+        case 3:   rv = "Cancelado";       
+        break;
+        case 4:   rv = "Entregado";       
+        break;           
+    }
+    return rv;
+}
+
+function searchOrder(){
+    let orderCode = $('#lookup').val().toUpperCase();
+    let tabla = $('.mainTable').get(0);
     tr = tabla.getElementsByTagName("tr");
     for (i = 0; i < tr.length; i++) {
         td = tr[i].getElementsByTagName("td")[2];
         if (td) {
-            if (td.innerHTML.toUpperCase().indexOf(dominio) > -1) {
+            if (td.innerHTML.toUpperCase().indexOf(orderCode) > -1) {
                 tr[i].style.display = "";
             } else {
                 tr[i].style.display = "none";
@@ -208,48 +308,22 @@ function buscarPorDominio(){
 
 }
 
-function retirar(){
-    // localStorage.getItem('dominio');
-    $.ajax({
-        type: "put",
-       url: servidor+"Operacion/",
-       data: {
-           dominio: dominioActual
-       }
-          
-   })
-   .then(function(retorno){		
-     console.log(retorno);
-     if(retorno.mensaje == 'Exito'){
-        swal(retorno.mensaje,'El importe es $'+retorno.importe,'success');
-     }
-     else swal(retorno.mensaje,'','error');
-    
-   },function(error){
-       swal({
-        title: "Error",
-        text: "Hubo un error al retirar el vehiculo",
-        type: "error",
-        showCancelButton: false,
-        cancelButtonClass: "btn-info",
-        cancelButtonText: "cerrar"
-    });
-   });
-}
-
 $(document).ready(function() {
     let user = JSON.parse(localStorage.getItem('usrComanda'));
-    // let img = user.foto != null? "<img class='porfileImg' src='" + folderEmployeeImgaes + user.foto + "'></img>" : "<span class='glyphicon glyphicon-user'></span>";
-    $("#usr").html(user.mail);
+    if(user){
+        $("#usr").html(user.email);
+        role = user.role;        
+    }
 
     $(document).on("click", "#app__logout", function(e) {
         $.ajax({
             type: "get",
            url: servidor+"logout/"
               
-       });            
+       });      
+       localStorage.removeItem('usrComanda');      
         //location.href = "http://bpdda.esy.es/Comanda/web/app/login/login.html";      
         location.href = "http://localhost:8080/TP_PROG3_1C_2018/Comanda/web/app/login/login.html";      
     });
-    // cargarCocheras(0);
+    loadMainTable();
 });
