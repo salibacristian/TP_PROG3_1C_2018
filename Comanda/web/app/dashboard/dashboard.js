@@ -73,6 +73,7 @@ function loadOrder(){
             request:{
                 tableId: tableId, 
                 items: itemIds
+            }
        }
           
    })
@@ -314,6 +315,8 @@ $(document).ready(function() {
         $("#usr").html(user.email);
         role = user.role;        
     }
+    if(role != 1 && role != 2)//admin or waiter
+        $('#liTables').hide();
 
     $(document).on("click", "#app__logout", function(e) {
         $.ajax({
