@@ -30,10 +30,22 @@ class Order
 			return $query->fetchAll(PDO::FETCH_CLASS,'Order');
 			
 	}
+	public static function OrderByCode($code) 
+	{
+
+			$ctx = AccesoDatos::dameUnObjetoAcceso(); 
+			$query =$ctx->RetornarConsulta("select * from `order`
+			WHERE `code` = :code
+			");	
+			$query->bindValue(':code',$code, PDO::PARAM_STR);			
+			$query->execute();
+			return $query->fetchAll(PDO::FETCH_CLASS,'Order');
+			
+	}
 	public static function AllOrders() 
 	{
 			$ctx = AccesoDatos::dameUnObjetoAcceso(); 
-			$query =$ctx->RetornarConsulta("select * from `order`");	
+			$query =$ctx->RetornarConsulta("select * from `order` where `status` != 3");	
 			$query->execute();
 			return $query->fetchAll(PDO::FETCH_CLASS,'Order');
 			

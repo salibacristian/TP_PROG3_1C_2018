@@ -49,26 +49,13 @@ function loadOrder(){
 }
 
 function openNewOrderDialog(){
-    $.ajax({
-        type: "get",
-        url: servidor+"Client/"          
-   })
-   .then(function(response){
-       items = response;		
-    response.forEach(i => {
+    		
+    items.forEach(i => {
         $("#selectItems").append("<option value='"+ i +"'>"+i.name+"</option>");
     });
         
         $("#newOrderDialog").modal();
-   },function(error){
-       swal({
-        title: "Error",
-        type: "error",
-        showCancelButton: false,
-        cancelButtonClass: "btn-info",
-        cancelButtonText: "cerrar"
-    });
-   });
+        
        
 }
 
@@ -234,9 +221,35 @@ function drawTable(data){
         rows += "</tbody>";        
     }
     else {//producer
-
+        rows += "<tbody>";
+        let orderIds = [];
+        data.forEach(d => {
+            if(!orderIds.includes(d.orderId)){
+                orderIds.push(d.orderId);      //agrego codigo          
+                rows += "<tr onclick='openOrderItemsDialog("+ d.orderId +")'>" +
+                "<td>" + d.orderCode + "</td>"+
+                " </tr>";
+            }                  
+        });
+        rows += "</tbody>"; 
     }
     $("#mainTable").html(rows);
+}
+
+function openOrderItemsDialog(orderId){    
+    let mainList = JSON.parse(localStorage.getItem("mainList"));
+    let selectedRows = mainList.filter(function(x){return x.orderId == orderId;});
+    let rows = "";
+    rows += "<ul>";
+    selectedRows.forEach(r => {    
+        "<li>" + r.itemName + " unidades: "+ r.units +"</li>";    
+    });
+    rows += "</ul>";
+    $(document).on("click", "#takeOrderButton", function(e) {
+        putOrder(orderId,"");        
+    });
+    $("#itemsAndUnits").html(rows);  
+    $("#orderItemsDialog").modal();  
 }
 
 function openOrderDialog(orderId){
@@ -246,13 +259,13 @@ function openOrderDialog(orderId){
         $("#cancelOrderButton").hide();
     }
     $(document).on("click", "#deliveryOrderButton", function(e) {
-        putOrder(orderId,"deliver");        
+        putOrder(orderId,"deliver/");        
     });
     $(document).on("click", "#payOrderButton", function(e) {
-        putOrder(orderId,pay);        
+        putOrder(orderId,"pay/");        
     });
     $(document).on("click", "#cancelOrderButton", function(e) {
-        putOrder(orderId,"cancel");        
+        putOrder(orderId,"cancel/");        
     });
     $("#orderDialog").modal();        
 }
@@ -260,7 +273,7 @@ function openOrderDialog(orderId){
 function putOrder(orderId, action){
     $.ajax({
         type: "put",
-        url: servidor+"Order/"+action+"/",
+        url: servidor+"Order/"+action,
         data: {
             orderId: orderId
         }        
@@ -329,15 +342,69 @@ function searchOrder(){
 
 }
 
+function loadItems(){
+    $.ajax({
+        type: "get",
+        url: servidor+"Client/"          
+   })
+   .then(function(response){
+       items = response;
+},function(error){
+   swal({
+    title: "Error",
+    type: "error",
+    showCancelButton: false,
+    cancelButtonClass: "btn-info",
+    cancelButtonText: "cerrar"
+});
+});
+}
+
+function openFinishOrderDialog(){
+    swal({
+        title: "Finalizar Orden",
+        type: "input",
+        showCancelButton: true,
+        closeOnConfirm: false,
+        inputPlaceholder: "codigo de la orden"
+      }, function (inputValue) {
+        if (inputValue === false) return false;
+        if (inputValue === "" || inputValue.length < 5) {
+          swal.showInputError("el codigo tiene 5 caracteres");
+          return false
+        }
+        $.ajax({
+            type: "get",
+            url: servidor+"Order/byCode/",
+            data: {
+                orderCode: inputValue
+            }        
+       }).then(function(order){
+            putOrder(order.id,"finish/");        
+        });
+      });
+}
+
 $(document).ready(function() {
     let user = JSON.parse(localStorage.getItem('usrComanda'));
     if(user){
         $("#usr").html(user.email);
         role = user.role;        
     }
-    if(role != 1 && role != 2)//admin or waiter
-        $('#liTables').hide();
 
+    if(role != 1){
+        $('#liStats').hide();
+        $('#liUsrs').hide();       
+        $('#liExcel').hide();       
+        if(role != 2){
+            $('#liTables').hide();
+            $('#liNewOrder').hide();
+        }
+        if(role != 3)
+            $('#liFinishOrder').hide();
+        
+    }
+    
     $(document).on("click", "#app__logout", function(e) {
         $.ajax({
             type: "get",
@@ -348,5 +415,6 @@ $(document).ready(function() {
         //location.href = "http://bpdda.esy.es/Comanda/web/app/login/login.html";      
         location.href = "http://localhost:8080/TP_PROG3_1C_2018/Comanda/web/app/login/login.html";      
     });
+    loadItems();
     loadMainTable();
 });

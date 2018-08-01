@@ -220,6 +220,8 @@ $app->group('/Table', function () {
  $app->group('/Order', function () {
   
       $this->get('/', \OrderService::class . ':GetOrders');//any
+
+      $this->get('/byCode/', \OrderService::class . ':GetOrderByCode');
   
       $this->post('/', \OrderService::class . ':NewOrder');//waiter only
 

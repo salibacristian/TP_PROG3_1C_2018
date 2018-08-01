@@ -30,6 +30,12 @@ class OrderService extends Order
     return $response;
   }
 
+  public function GetOrderByCode($request, $response, $args) {
+    $params = $request->getParams(); 
+    $o = Order::OrderByCode($params['orderCode']);
+     return $response->withJson($o, 200);  
+  }
+
   public function GetOrderForClient($request, $response, $args) { 
     $params = $request->getParams(); 
     $o=Order::OrderForClient($params['tableCode'],$params['orderCode']);

@@ -24,7 +24,7 @@
                 <a style="font-family:cursive;" class="navbar-brand" href="#">La Comanda</a>
             </div>
             <ul class="nav navbar-nav">
-                <li class="dropdown">
+                <li id="liStats" class="dropdown">
                     <a class="dropdown-toggle" data-toggle="dropdown" href="#">Estadisticas<span class="caret"></span></a>
                     <ul class="dropdown-menu">
                         <li><a href="#">Pedidos</a></li>
@@ -34,10 +34,11 @@
                     </ul>
                 </li>
                 <!-- <li><a href="http://bpdda.esy.es/Comanda/web/app/users/users.html">Usuarios</a></li> -->
-                <li><a href="http://localhost:8080/TP_PROG3_1C_2018/Comanda/web/app/users/users.html">Usuarios</a></li>
+                <li id="liUsrs"><a href="http://localhost:8080/TP_PROG3_1C_2018/Comanda/web/app/users/users.html">Usuarios</a></li>
                 <li id="liTables"><a href="http://localhost:8080/TP_PROG3_1C_2018/Comanda/web/app/tables/tables.html">Mesas</a></li>
-                <li class="active"><button class="btn btn-primary" style="margin:5px;" onclick="openNewOrderDialog()"><i class="fa fa-upload"></i> Cargar Pedido</button></li>
-                <li class="active"><button class="btn btn-success" style="margin:5px;" onclick="downloadExcel()"><i class="fa fa-file-excel"></i> Exportar Excel</button></li>
+                <li id="liNewOrder" class="active"><button class="btn btn-primary" style="margin:5px;" onclick="openNewOrderDialog()"><i class="fa fa-upload"></i> Cargar Pedido</button></li>
+                <li id="liFinishOrder" class="active"><button class="btn btn-primary" style="margin:5px;" onclick="openFinishOrderDialog()"><i class="fa fa-check"></i> Orden Terminada</button></li>
+                <li id="liExcel" class="active"><button class="btn btn-success" style="margin:5px;" onclick="downloadExcel()"><i class="fa fa-file-excel"></i> Exportar Excel</button></li>
             </ul>
             <ul class="nav navbar-nav navbar-right">
                 <li><a id="usr" href="#"></a></li>
@@ -55,7 +56,7 @@
     </div>
 
     </div>
-    <!-- popup cochera -->
+    <!-- popup pedido -->
     <div class="modal fade" id="orderDialog" role="dialog">
         <div class="modal-dialog modal-md">
             <div class="modal-content">
@@ -70,6 +71,20 @@
             </div>
         </div>
     </div>
+        <!-- popup items -->
+        <div class="modal fade" id="orderItemsDialog" role="dialog">
+                <div class="modal-dialog modal-md">
+                    <div class="modal-content">
+                        <div class="modal-body">
+                            <span id="itemsAndUnits"></span>
+                        </div>
+                        <div class="modal-footer">
+                            <button title="click para preparar esta orden" id="takeOrderButton" type="button" class='btn btn-primary'><i class="fa fa-arrow-right"></i> Comenzar</button>                                
+                            <button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
     <!-- popup ingreso -->
     <div class="modal fade" id="newOrderDialog" role="dialog">
         <div class="modal-dialog modal-lg">
