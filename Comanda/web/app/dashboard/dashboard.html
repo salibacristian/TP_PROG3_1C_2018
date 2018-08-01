@@ -11,6 +11,7 @@
     <link rel="stylesheet" href="../../bower_components/bootstrap/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="../../bower_components/bootstrap-sweetalert/dist/sweetalert.css">
     <link rel="stylesheet" href="../../bower_components/components-font-awesome/css/fontawesome.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">    
     <link rel='stylesheet prefetch' href='https://fonts.googleapis.com/css?family=Open+Sans'>
     <script src="dashboard.js"></script>
     <link rel="stylesheet" href="dashboard.css">
@@ -35,8 +36,8 @@
                 <!-- <li><a href="http://bpdda.esy.es/Comanda/web/app/users/users.html">Usuarios</a></li> -->
                 <li><a href="http://localhost:8080/TP_PROG3_1C_2018/Comanda/web/app/users/users.html">Usuarios</a></li>
                 <li id="liTables"><a href="http://localhost:8080/TP_PROG3_1C_2018/Comanda/web/app/tables/tables.html">Mesas</a></li>
-                <li class="active"><button class="btn btn-primary" style="margin:5px;" onclick="openNewOrderDialog()">Cargar Pedido</button></li>
-                <li class="active"><button class="btn btn-success" style="margin:5px;" onclick="downloadExcel()">Exportar Excel</button></li>
+                <li class="active"><button class="btn btn-primary" style="margin:5px;" onclick="openNewOrderDialog()"><i class="fa fa-upload"></i> Cargar Pedido</button></li>
+                <li class="active"><button class="btn btn-success" style="margin:5px;" onclick="downloadExcel()"><i class="fa fa-file-excel"></i> Exportar Excel</button></li>
             </ul>
             <ul class="nav navbar-nav navbar-right">
                 <li><a id="usr" href="#"></a></li>
@@ -55,21 +56,15 @@
 
     </div>
     <!-- popup cochera -->
-    <div class="modal fade" id="popUpCochera" role="dialog">
-        <div class="modal-dialog modal-lg">
+    <div class="modal fade" id="orderDialog" role="dialog">
+        <div class="modal-dialog modal-md">
             <div class="modal-content">
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal">&times;</button>
-                    <h4 class="modal-title">Cochera <span class="numeroCochera"></span></h4>
+                <div class="modal-body">
+                    <button id="deliveryOrderButton" type="button" class='btn btn-primary'><i class="fa fa-arrow-right"></i> Entregar</button>
+                    <button id="payOrderButton" type="button" class='btn btn-success'><i class="fa fa-dollar-sign"></i> Cobrar</button>
+                    <button id="cancelOrderButton" type="button" class='btn btn-danger'><i class="fa fa-times"></i> Cancelar</button>
                 </div>
-                <div id="cocheraModalBody" class="modal-body">
-                    <p class="operacionInfo"></p> <div class="vehiculoImg"></div>
-                    <h4>Ingreso: <span class="operacionIngreso"></span></h4>
-                    <h4>Tiempo: <span class="tiempoAcum"></span></h4>
-                </div>
-                <div id="spinnerGif"><img src="../spinner.gif"></img></div>
                 <div class="modal-footer">
-                    <button type="button" class='btn btn-primary' onclick="retirar()">Retirar</button>
                     <button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
                 </div>
             </div>

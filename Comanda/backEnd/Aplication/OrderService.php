@@ -19,7 +19,7 @@ class OrderService extends Order
         $o=Order::AllOrders();
         break;
         case Role::Waiter://pedidos terminados de todos los sectores
-        $o=Order::Orders(OrderStatus::Finished);
+        $o=Order::OrdersForWaiter();
         break;
         case Role::Producer://debe ver los pendientes
         $o=Order_Item::PendingOrderItems($sector);
@@ -323,9 +323,8 @@ public function PayOrder($request, $response, $args) {
   $objDelaRespuesta= new stdclass();
   try{
   $params = $request->getParsedBody();
-  $tableCode= $params['tableCode']; 
-  $orderCode= $params['orderCode']; 
-  $order = Order::OrderForClient($tableCode,$orderCode);
+  $orderId= $params['orderId']; 
+  $order = Order::GetOrderById($orderId);
   if($order == null){
     $objDelaRespuesta->mensaje = "No se encontro la orden";
     return $response->withJson($objDelaRespuesta, 200);

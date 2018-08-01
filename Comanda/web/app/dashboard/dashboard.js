@@ -2,53 +2,7 @@
 var servidor="http://localhost:8080/TP_PROG3_1C_2018/Comanda/backEnd/";
 var role = 0;//client default
 var folderOrderImages = "../../../backend/fotosPedidos/";
-var tables = [
-    {
-        id:1,
-        code:'00000'
-    },
-    {
-        id:2,
-        code:'000001'
-    },
-    {
-        id:3,
-        code:'00002'
-    },
-    {
-        id:4,
-        code:'00003'
-    },
-    {
-        id:5,
-        code:'00004'
-    },
-    {
-        id:6,
-        code:'00005'
-    },
-    {
-        id:7,
-        code:'00006'
-    },
-    {
-        id:8,
-        code:'00007'
-    },
-    {
-        id:9,
-        code:'00008'
-    },
-    {
-        id:10,
-        code:'00009'
-    },
-    {
-        id:11,
-        code:'00010'
-    }
-    
-];
+var tables = [];
 var items = [];
 
 $(document).on("change", "#selectItems", function(e) {
@@ -119,12 +73,50 @@ function openNewOrderDialog(){
 }
 
 function loadMainTable(param){
-    if(role){//usr
-        getOrders();
+    $.ajax({
+        type: "get",
+        url: servidor+"Table/"         
+   })
+   .then(function(response){
+    if(response.length > 0){
+        if(response.indexOf('Expired token') == -1){	
+            tables = response;
+            if(role){//usr
+                getOrders();
+            }
+            else{//client
+                getLetter();
+            }
+        }
+        else{
+            swal({
+                title: "Expiro el token",
+                type: "info",
+                showCancelButton: false,
+                cancelButtonClass: "btn-info",
+                cancelButtonText: "cerrar"
+            },function(isConfirm){
+                if(isConfirm){
+                    //location.href = "http://bpdda.esy.es/Comanda/web/app/login/login.html";      
+                    location.href = "http://localhost:8080/TP_PROG3_1C_2018/Comanda/web/app/login/login.html";      
+                }
+            });
+        }
     }
-    else{//client
-        getLetter();
+    else{
+        swal('Error','Hubo un error al cargar las mesas','error');
     }
+   },function(error){
+       swal({
+        title: "Error",
+        text: "Hubo un error al cargar el listado",
+        type: "error",
+        showCancelButton: false,
+        cancelButtonClass: "btn-info",
+        cancelButtonText: "cerrar"
+    });
+   });
+   
 }
 
 function getOrders(param){
@@ -136,7 +128,7 @@ function getOrders(param){
     if(response.length > 0){
         if(response.indexOf('Expired token') == -1){	
             localStorage.setItem("mainList",JSON.stringify(response));
-            drawTable(response,role);
+            drawTable(response);
         }
         else{
             swal({
@@ -177,7 +169,7 @@ function getLetter(param){
    .then(function(response){		
     localStorage.setItem("mainList",JSON.stringify(response));
     if(response.length > 0){
-        drawTable(response,role);
+        drawTable(response);
     }
     else{
         swal('Error','No se encontro la informacion de la carta','error');
@@ -194,7 +186,7 @@ function getLetter(param){
    });
 }
 
-function drawTable(data,role){
+function drawTable(data){
     var rows = '';
     if(!role){//client
     } 
@@ -219,9 +211,10 @@ function drawTable(data,role){
         rows += "</tr></thead><tbody>";
         data.forEach(d => {
             let img = "<img class='tableImg' alt='sin foto' src='" + folderOrderImages + d.imgUrl + "'></img>";
+            let tableCode = tables.filter(function(x){ return x.id == d.tableId;})[0].code;
             rows += "<tr onclick='openOrderDialog("+ d.id +")'>" +
             "<td>" + d.code + "</td>" +
-            "<td>" + tables[d.tableId - 1] + "</td>" +
+            "<td>" + tableCode + "</td>" +
             "<td>" + img + "</td>" +        
             "<td>" + getStatus(d.status) + "</td>" +
             "<td>" + (d.estimatedTime?d.estimatedTime:'') + "</td>";
@@ -246,33 +239,60 @@ function drawTable(data,role){
     $("#mainTable").html(rows);
 }
 
-function getTableCode(tableId){
-    let rv = "";
-    switch (tableId) {
-        case 1:   rv = "00000";       
-            break;  
-            case 2:   rv = "00001";       
-            break;
-            case 3:   rv = "00002";       
-            break;
-            case 4:   rv = "00003";       
-            break;
-            case 5:   rv = "00004";       
-            break;
-            case 6:   rv = "00005";       
-            break;
-            case 7:   rv = "00006";       
-            break;
-            case 8:   rv = "00007";       
-            break;
-            case 9:   rv = "00008";       
-            break;
-            case 10:   rv = "00009";       
-            break;
-            case 11:   rv = "00010";       
-            break;  
+function openOrderDialog(orderId){
+    if(role != 1 && role != 2){
+        $("#deliveryOrderButton").hide();
+        $("#payOrderButton").hide();
+        $("#cancelOrderButton").hide();
     }
-    return rv;
+    $(document).on("click", "#deliveryOrderButton", function(e) {
+        putOrder(orderId,"deliver");        
+    });
+    $(document).on("click", "#payOrderButton", function(e) {
+        putOrder(orderId,pay);        
+    });
+    $(document).on("click", "#cancelOrderButton", function(e) {
+        putOrder(orderId,"cancel");        
+    });
+    $("#orderDialog").modal();        
+}
+
+function putOrder(orderId, action){
+    $.ajax({
+        type: "put",
+        url: servidor+"Order/"+action+"/",
+        data: {
+            orderId: orderId
+        }        
+    })
+    .then(function(response){
+        if(response.mensaje || response.indexOf('Expired token') == -1){
+            swal(response.mensaje,'','success');
+            getOrders();
+        }
+        else{
+            swal({
+                title: "Expiro el token",
+                type: "info",
+                showCancelButton: false,
+                cancelButtonClass: "btn-info",
+                cancelButtonText: "cerrar"
+            },function(isConfirm){
+                if(isConfirm){
+                    //location.href = "http://bpdda.esy.es/Comanda/web/app/login/login.html";      
+                    location.href = "http://localhost:8080/TP_PROG3_1C_2018/Comanda/web/app/login/login.html";      
+                }
+            });
+        }      
+    },function(error){
+        swal({
+        title: "Error",
+        type: "error",
+        showCancelButton: false,
+        cancelButtonClass: "btn-info",
+        cancelButtonText: "cerrar"
+    });
+    });
 }
 
 function getStatus(status){

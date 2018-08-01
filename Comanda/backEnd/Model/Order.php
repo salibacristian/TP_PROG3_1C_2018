@@ -18,15 +18,14 @@ class Order
 	public $takenDate;
 	public $finishDate;
 
-	public static function Orders($status) 
+	public static function OrdersForWaiter() 
 	{
 		// var_dump($status);
 		// var_dump($sector);die();
 			$ctx = AccesoDatos::dameUnObjetoAcceso(); 
 			$query =$ctx->RetornarConsulta("select * from `order`
-			WHERE :status = `status`
+			WHERE `status` < 3
 			");	
-			$query->bindValue(':status',$status, PDO::PARAM_INT);		
 			$query->execute();
 			return $query->fetchAll(PDO::FETCH_CLASS,'Order');
 			
