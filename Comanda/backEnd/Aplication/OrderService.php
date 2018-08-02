@@ -19,7 +19,7 @@ class OrderService extends Order
         $o=Order::AllOrders();
         break;
         case Role::Waiter://pedidos terminados de todos los sectores
-        $o=Order::OrdersForWaiter();
+        $o=Order::AllOrders();
         break;
         case Role::Producer://debe ver los pendientes
         $o=Order_Item::PendingOrderItems($sector);

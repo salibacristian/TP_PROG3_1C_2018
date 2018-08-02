@@ -199,7 +199,7 @@ function drawTable(data){
         data.forEach(d => {
             let img = "<img class='tableImg' alt='sin foto' src='" + folderOrderImages + d.imgUrl + "'></img>";
             let tableCode = tables.filter(function(x){ return x.id == d.tableId;})[0].code;
-            rows += "<tr onclick='openOrderDialog("+ d.id +")'>" +
+            rows += "<tr onclick='openOrderDialog("+ d.id +","+d.status+")'>" +
             "<td>" + d.code + "</td>" +
             "<td>" + tableCode + "</td>" +
             "<td>" + img + "</td>" +        
@@ -242,7 +242,7 @@ function openOrderItemsDialog(orderId){
     let rows = "";
     rows += "<ul>";
     selectedRows.forEach(r => {    
-        "<li>" + r.itemName + " unidades: "+ r.units +"</li>";    
+        rows += "<li>" + r.itemName + " unidades: "+ r.units +"</li>";    
     });
     rows += "</ul>";
     $(document).on("click", "#takeOrderButton", function(e) {
@@ -252,12 +252,19 @@ function openOrderItemsDialog(orderId){
     $("#orderItemsDialog").modal();  
 }
 
-function openOrderDialog(orderId){
+function openOrderDialog(orderId,status){
     if(role != 1 && role != 2){
         $("#deliveryOrderButton").hide();
         $("#payOrderButton").hide();
         $("#cancelOrderButton").hide();
     }
+    if(status >= 2)
+        $("#cancelOrderButton").hide();
+    if(status != 2)
+        $("#deliveryOrderButton").hide();
+    if(status != 4)
+         $("#payOrderButton").hide();   
+    
     $(document).on("click", "#deliveryOrderButton", function(e) {
         putOrder(orderId,"deliver/");        
     });
@@ -380,7 +387,7 @@ function openFinishOrderDialog(){
                 orderCode: inputValue
             }        
        }).then(function(order){
-            putOrder(order.id,"finish/");        
+            putOrder(order[0].id,"finish/");        
         });
       });
 }
