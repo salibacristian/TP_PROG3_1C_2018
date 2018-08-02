@@ -98,7 +98,6 @@ class OrderService extends Order
     try{
     $body = $request->getParsedBody();
     $params = json_decode($body['request']);
-     //var_dump($params);die();
     $tableId= $params->tableId;
     $items= $params->items;
     $id_user= $_SESSION['userId'];
@@ -123,8 +122,8 @@ class OrderService extends Order
   
     $archivos = $request->getUploadedFiles();
     $destino="./fotosPedidos/";
-    //var_dump($archivos);
-    //var_dump($archivos['foto']);
+    // var_dump($archivos);die();
+    //var_dump($archivos['foto']);die();
 
     $nombreAnterior=$archivos['foto']->getClientFilename();
     $extension= explode(".", $nombreAnterior)  ;
@@ -136,7 +135,7 @@ class OrderService extends Order
 
     $archivos['foto']->moveTo($destino.$code.".".$extension[0]);
   
-     //cargo relacion con usuario moso
+    //cargo relacion con usuario moso
      $ou = new Order_User();
      
      $ou->userId=$id_user;
@@ -147,13 +146,13 @@ class OrderService extends Order
 
      //cargo relacion con items
      $oi = new Order_Item();
-     foreach ($items as $item) {
+     foreach ($items as $item) {     
       $oi->orderId=$orderId;
       $oi->itemId=$item->id;
       $oi->units=$item->units;
       $oi->Add();
      }
-     
+
      //actualizo status mesa
     RestaurantTable::ChangeStatus($tableId,TableStatus::Waiting);
      $objDelaRespuesta= new stdclass();

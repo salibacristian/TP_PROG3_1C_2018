@@ -31,7 +31,6 @@ class Order_Item
 
 	public function Add()
 	{
-	//    var_dump($this);die;
 	   $ctx = AccesoDatos::dameUnObjetoAcceso();
 	   $query = $ctx->RetornarConsulta("INSERT INTO order_item 
 	   (itemId,units,orderId)

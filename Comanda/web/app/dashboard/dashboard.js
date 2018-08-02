@@ -7,39 +7,56 @@ var items = [];
 
 $(document).on("change", "#selectItems", function(e) {
     $("#newOrderInputs").html('');
-    let items = $("#selectItems").val();
+    let itemIds = $("#selectItems").val();
     items.forEach(i => {
-        if(i)
-        $("#newOrderInputs").append("<input type='text' value='"+ i.name +"></input>");
+        if(itemIds.includes(i.id.toString()))
+            $("#newOrderInputs").append("<input type='text' value='"+ i.name +"'></input><input placeholder='unidades' value='1' type='number' min='1' id ='itemunits"+i.id+"'>");
     });
     
 });
 
 function loadOrder(){
-    let photo = $("#loadedPhoto").val();   
+    // let photo = $("#loadedPhoto").val();   
     let tableId = tables.filter(function(x){return x.code == $("#tableCode").val();})[0].id;
-    let items = $("#selectItems").val();
+    let itemIds = $("#selectItems").val();
+    let selectedItems = [];
+    itemIds.forEach(id => {
+        let units = $('#itemunits'+id).val();
+        selectedItems.push({id: id, units: units});
+    });
+
+    var data = new FormData();
+    jQuery.each(jQuery('#loadedPhoto')[0].files, function(i, file) {
+        data.append('foto', file);
+    });
+    data.append('request', JSON.stringify({tableId: tableId, items: selectedItems}));
     $.ajax({
-        type: "post",
-       url: servidor+"Order/",
-       data: {
-            foto: photo,
-            request:{
-                tableId: tableId, 
-                items: itemIds
-            }
-       }
+        url: servidor+"Order/",
+        data: data,
+        cache: false,
+        contentType: false,
+        processData: false,
+        method: 'POST',
+        type: 'POST'  
           
    })
-   .then(function(retorno){		
-       if(retorno.mensaje == 'Exito')
-            swal(retorno.mensaje,'','success');
-       else swal(retorno.mensaje,'','error');
-   
+   .then(function(response){	
+    swal({
+        title: 'Listo',
+        text: 'El codigo del pedido es '+response,
+        type: "success",
+        showCancelButton: false,
+        cancelButtonClass: "btn-info",
+        cancelButtonText: "cerrar"
+    },function(isConfirm){
+        if(isConfirm){
+            getOrders();                }
+    });
+
    },function(error){
        swal({
      title: "Error",
-     text: "Hubo un error al ingresar el vehiculo",
+     text: "Hubo un error al ingresar el pedido",
      type: "error",
      showCancelButton: false,
      cancelButtonClass: "btn-info",
@@ -48,15 +65,11 @@ function loadOrder(){
    });
 }
 
-function openNewOrderDialog(){
-    		
+function openNewOrderDialog(){    		
     items.forEach(i => {
-        $("#selectItems").append("<option value='"+ i +"'>"+i.name+"</option>");
-    });
-        
-        $("#newOrderDialog").modal();
-        
-       
+        $("#selectItems").append("<option value='"+ i.id +"'>"+i.name+"</option>");
+    });        
+     $("#newOrderDialog").modal();         
 }
 
 function loadMainTable(param){
@@ -77,7 +90,7 @@ function loadMainTable(param){
         }
         else{
             swal({
-                title: "Expiro el token",
+                title: "Expiro la sesion",
                 type: "info",
                 showCancelButton: false,
                 cancelButtonClass: "btn-info",
@@ -119,7 +132,7 @@ function getOrders(param){
         }
         else{
             swal({
-                title: "Expiro el token",
+                title: "Expiro la sesion",
                 type: "info",
                 showCancelButton: false,
                 cancelButtonClass: "btn-info",
@@ -135,6 +148,7 @@ function getOrders(param){
     }
     else{
         swal('No hay pedidos!','','info');
+        drawTable('');
     }
    },function(error){
        swal({
@@ -174,6 +188,8 @@ function getLetter(param){
 }
 
 function drawTable(data){
+    if(data == ''){$("#mainTable").html(data); return;}
+
     var rows = '';
     if(!role){//client
     } 
@@ -286,13 +302,21 @@ function putOrder(orderId, action){
         }        
     })
     .then(function(response){
-        if(response.mensaje || response.indexOf('Expired token') == -1){
-            swal(response.mensaje,'','success');
-            getOrders();
+        if(response.mensaje || response.indexOf('Expired token') == -1){           
+            swal({
+                title: response.mensaje,
+                type: "success",
+                showCancelButton: false,
+                cancelButtonClass: "btn-info",
+                cancelButtonText: "cerrar"
+            },function(isConfirm){
+                if(isConfirm){
+                    getOrders();                }
+            });
         }
         else{
             swal({
-                title: "Expiro el token",
+                title: "Expiro la sesion",
                 type: "info",
                 showCancelButton: false,
                 cancelButtonClass: "btn-info",
