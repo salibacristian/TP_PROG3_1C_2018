@@ -1,136 +1,128 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <title>La Comanda</title>
-  <link rel="shortcut icon" href="../cupIcon.jpg">
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=yes">    
-  <script src='../../bower_components/jquery/dist/jquery.min.js'></script>
-  <script src='../../bower_components/bootstrap/dist/js/bootstrap.min.js'></script>
-  <script src="../../bower_components/bootstrap-sweetalert/dist/sweetalert.min.js"></script>
-  <link rel="stylesheet" href="../../bower_components/bootstrap/dist/css/bootstrap.min.css">
-  <link rel="stylesheet" href="../../bower_components/bootstrap-sweetalert/dist/sweetalert.css">
-  <link rel="stylesheet" href="../../bower_components/components-font-awesome/css/fontawesome.min.css">
-  <link rel='stylesheet prefetch' href='https://fonts.googleapis.com/css?family=Open+Sans'>
-  <script src="dashboard.js"></script>
-  <link rel="stylesheet" href="dashboard.css">  
+    <title>La Comanda</title>
+    <link rel="shortcut icon" href="../cupIcon.jpg">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=yes">
+    <script src='../../bower_components/jquery/dist/jquery.min.js'></script>
+    <script src='../../bower_components/bootstrap/dist/js/bootstrap.min.js'></script>
+    <script src="../../bower_components/bootstrap-sweetalert/dist/sweetalert.min.js"></script>
+    <link rel="stylesheet" href="../../bower_components/bootstrap/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="../../bower_components/bootstrap-sweetalert/dist/sweetalert.css">
+    <link rel="stylesheet" href="../../bower_components/components-font-awesome/css/fontawesome.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">    
+    <link rel='stylesheet prefetch' href='https://fonts.googleapis.com/css?family=Open+Sans'>
+    <script src="dashboard.js"></script>
+    <link rel="stylesheet" href="dashboard.css">
 
 </head>
 <body>
-  <nav class="navbar navbar-inverse">
-  <div class="container-fluid">
-    <div class="navbar-header">
-      <a class="navbar-brand" href="#">La Comanda</a>
-    </div>
-    <ul class="nav navbar-nav">
-      <li class="active"><button class="btn btn-basic" style="position: absolute;bottom: -40px;left: 250px;" onclick="ingreso()">INGRESO</button></li>
-      <li class="dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#">Page 1 <span class="caret"></span></a>
-        <ul class="dropdown-menu">
-          <li><a href="#">Page 1-1</a></li>
-          <li><a href="#">Page 1-2</a></li>
-          <li><a href="#">Page 1-3</a></li>
-        </ul>
-      </li>
-      <li><a href="#">Page 2</a></li>
-    </ul>
-    <ul class="nav navbar-nav navbar-right">
-      <li><a id="usr" href="#"></a></li>
-      <li><a id="app__logout" href="#"><span class="glyphicon glyphicon-log-in"></span> Cerrar Sesion</a></li>
-    </ul>
-  </div>
-</nav>
-<div class="container">
-    <input type="text" id="lookup" name="search" placeholder="buscar dominio" onkeyup="buscarPorDominio()" >
-    <div class="table-responsive">          
-        <table class="table table-hover tableCochera">
-          <thead>
-            <tr>
-              <th>PISO</th>
-              <th>PUESTO</th>
-              <th>DOMINIO</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody id="cocherasEnUso">
-            <!-- <tr>
-               <td></td> 
-            </tr> -->
-          </tbody>
-        </table>
+    <nav class="navbar navbar-inverse">
+        <div class="container-fluid">
+            <div class="navbar-header">
+                <a style="font-family:cursive;" class="navbar-brand" href="#">La Comanda</a>
+            </div>
+            <ul class="nav navbar-nav">
+                <li id="liStats" class="dropdown">
+                    <a class="dropdown-toggle" data-toggle="dropdown" href="#">Estadisticas<span class="caret"></span></a>
+                    <ul class="dropdown-menu">
+                        <li><a href="#">Pedidos</a></li>
+                        <li><a href="#">Ventas</a></li>
+                        <li><a href="#">Mesa Golden</a></li>
+                        <li><a href="#">Facturacion</a></li>
+                    </ul>
+                </li>
+                <!-- <li><a href="http://bpdda.esy.es/Comanda/web/app/users/users.html">Usuarios</a></li> -->
+                <li id="liUsrs"><a href="http://localhost:8080/TP_PROG3_1C_2018/Comanda/web/app/users/users.html">Usuarios</a></li>
+                <li id="liTables"><a href="http://localhost:8080/TP_PROG3_1C_2018/Comanda/web/app/tables/tables.html">Mesas</a></li>
+                <li id="liNewOrder" class="active"><button class="btn btn-primary" style="margin:5px;" onclick="openNewOrderDialog()"><i class="fa fa-upload"></i> Cargar Pedido</button></li>
+                <li id="liFinishOrder" class="active"><button class="btn btn-primary" style="margin:5px;" onclick="openFinishOrderDialog()"><i class="fa fa-check"></i> Orden Terminada</button></li>
+                <li id="liExcel" class="active"><button class="btn btn-success" style="margin:5px;" onclick="downloadExcel()"><i class="fa fa-file-excel"></i> Exportar Excel</button></li>
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+                <li><a id="usr" href="#"></a></li>
+                <li><a id="app__logout" href="#"><span class="glyphicon glyphicon-log-in"></span> Cerrar Sesion</a></li>
+            </ul>
         </div>
-      </div>
+    </nav>
+    <div class="container">
+        <input type="text" id="lookup" name="search" placeholder="buscar pedido" onkeyup="searchOrder()">
+        <div class="table-responsive">
+            <table id="mainTable" class="table table-hover mainTable">
+               
+            </table>
+        </div>
+    </div>
 
-</div>
-<!-- popup cochera -->
-<div class="modal fade" id="popUpCochera" role="dialog">
-    <div class="modal-dialog modal-lg">
-      <div class="modal-content">
-        <div class="modal-header">
-          <button type="button" class="close" data-dismiss="modal">&times;</button>
-          <h4 class="modal-title">Cochera <span class="numeroCochera"></span></h4>
-        </div>
-        <div id="cocheraModalBody" class="modal-body">
-          <p class="operacionInfo"></p> <div class="vehiculoImg"></div>
-          <h4>Ingreso: <span class="operacionIngreso"></span></h4>
-          <h4>Tiempo: <span class="tiempoAcum"></span></h4>
-        </div>
-        <div id="spinnerGif"><img src="../spinner.gif"></img></div>
-        <div class="modal-footer">
-          <button type="button" class='btn btn-primary' onclick="retirar()">Retirar</button>            
-          <button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
-        </div>
-      </div>
     </div>
-  </div>
-  <!-- popup ingreso -->
-<div class="modal fade" id="popUpIngreso" role="dialog">
-    <div class="modal-dialog modal-lg">
-      <div class="modal-content">
-        <div class="modal-header">
-          <button type="button" class="close" data-dismiss="modal">&times;</button>
-          <h4 class="modal-title">Nuevo Ingreso</h4>
-        </div>
-        <div id="ingresoModalBody" class="modal-body">
-            <div class="form-group row">
-                <label for="example-text-input" class="col-2 col-form-label">Dominio</label>
-                <div class="col-10">
-                  <input class="form-control" type="text" id="dominio">
+    <!-- popup pedido -->
+    <div class="modal fade" id="orderDialog" role="dialog">
+        <div class="modal-dialog modal-md">
+            <div class="modal-content">
+                <div class="modal-body">
+                    <button id="deliveryOrderButton" type="button" class='btn btn-primary'><i class="fa fa-arrow-right"></i> Entregar</button>
+                    <button id="payOrderButton" type="button" class='btn btn-success'><i class="fa fa-dollar-sign"></i> Cobrar</button>
+                    <button id="cancelOrderButton" type="button" class='btn btn-danger'><i class="fa fa-times"></i> Cancelar</button>
                 </div>
-            </div>
-            <div class="form-group row">
-                <label for="example-text-input" class="col-2 col-form-label">Marca</label>
-                <div class="col-10">
-                  <input class="form-control" type="text" id="marca">
-                </div>
-            </div>
-            <div class="form-group row">
-                <label for="example-text-input" class="col-2 col-form-label">Color</label>
-                <div class="col-10">
-                  <input class="form-control" type="text" id="color">
-                </div>
-            </div>
-            <div class="form-group row">
-                <label for="example-text-input" class="col-2 col-form-label">Cochera</label>
-                <div class="col-10">
-                  <select class="form-control" id="selectCocheras">
-
-                    </select>
-                </div>
-            </div>
-            <div class="form-group row">
-                <label for="example-text-input" class="col-2 col-form-label">Foto</label>
-                <div class="col-10">
-                  <input class="form-control" type="file" id="fotoCargada">
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
                 </div>
             </div>
         </div>
-        <div class="modal-footer">
-          <button type="button" class='btn btn-primary' onclick="ingresar()">Ingresar</button>            
-          <button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
-        </div>
-      </div>
     </div>
-  </div>
+        <!-- popup items -->
+        <div class="modal fade" id="orderItemsDialog" role="dialog">
+                <div class="modal-dialog modal-md">
+                    <div class="modal-content">
+                        <div class="modal-body">
+                            <span id="itemsAndUnits"></span>
+                        </div>
+                        <div class="modal-footer">
+                            <button title="click para preparar esta orden" id="takeOrderButton" type="button" class='btn btn-primary'><i class="fa fa-arrow-right"></i> Comenzar</button>                                
+                            <button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+    <!-- popup ingreso -->
+    <div class="modal fade" id="newOrderDialog" role="dialog">
+        <div class="modal-dialog modal-md">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">Nuevo Pedido</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group row">
+                            <div class="col-xs-10 col-sm-10 col-md-8 col-lg-8">
+                        <label for="tableCode" class="col-2 col-form-label">Mesa</label>
+                        
+                            <input class="form-control" type="text" id="tableCode">
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                            <div class="col-xs-10 col-sm-10 col-md-8 col-lg-8">
+                        <label for="selectItems" class="col-2 col-form-label">Orden</label>                      
+                            <select multiple class="form-control" id="selectItems"></select>
+                            <div id="newOrderInputs"></div>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                            <div class="col-xs-10 col-sm-10 col-md-8 col-lg-8">
+                        <label for="loadedPhoto" class="col-2 col-form-label">Foto</label>
+                        
+                            <input class="form-control" type="file" id="loadedPhoto">
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class='btn btn-primary' onclick="loadOrder()">Ingresar</button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
 </body>
 </html>

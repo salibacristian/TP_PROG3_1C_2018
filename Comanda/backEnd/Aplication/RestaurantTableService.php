@@ -51,6 +51,10 @@ class RestaurantTableService extends RestaurantTable
      $newResponse = $response->withJson($objDelaRespuesta, 200);  
        return $newResponse;
    }
+
+   public function GetAllTables($request, $response, $args) {
+     return $response->withJson(RestaurantTable::GetAll(), 200);
+    }
      
 }
 

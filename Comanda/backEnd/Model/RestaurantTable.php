@@ -18,6 +18,15 @@ class RestaurantTable
 		
 	}
 
+	public static function GetAll() 
+	{
+		$ctx = AccesoDatos::dameUnObjetoAcceso(); 
+		$query = $ctx->RetornarConsulta("select *
+		from restauranttable");
+		$query->execute();
+		return $query->fetchAll(PDO::FETCH_CLASS,'RestaurantTable');	
+	}
+
 	 public function AddTable()
 	 {
 		 try{

@@ -174,6 +174,8 @@ $app->group('/Table', function () {
  *     
    */
      $this->get('/tables/', \RestaurantTableService::class . ':GetTables')->add(\MWparaAutentificar::class . ':VerificarPerfil');//bystatus admin or waiter only
+
+     $this->get('/', \RestaurantTableService::class . ':GetAllTables');
   
     //  $this->get('/', \RestaurantTableService::class . ':GetTablesInfo')->add(\MWparaAutentificar::class . ':VerificarPerfil');//admin only
   /**
@@ -218,6 +220,8 @@ $app->group('/Table', function () {
  $app->group('/Order', function () {
   
       $this->get('/', \OrderService::class . ':GetOrders');//any
+
+      $this->get('/byCode/', \OrderService::class . ':GetOrderByCode');
   
       $this->post('/', \OrderService::class . ':NewOrder');//waiter only
 

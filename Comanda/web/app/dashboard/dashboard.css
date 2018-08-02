@@ -1,23 +1,28 @@
 body{
-    background-color: #8a8aee;
+    background-color: #a9a9ec;
 }
 
-.tableCochera {
+/* .mainTable {
     width: 30%;
-}
+} */
 
-.porfileImg{
+.tableImg{
     height:40px;
     width:40px;
-    margin-top: -5%;
-    margin-bottom:-5%;
+    /* margin-top: -5%;
+    margin-bottom:-5%; */
 }
 
-#wheelchairIcon{
+tr:hover{
+    cursor: pointer;
+}
+
+
+/* #wheelchairIcon{
     font-size:20px;
     color: rgb(165, 190, 194);
 
-}
+} */
 
 #lookup {
     width: 25%;
