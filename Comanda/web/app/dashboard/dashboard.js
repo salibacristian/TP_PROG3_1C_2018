@@ -239,9 +239,14 @@ function getStats(){
         switch (statsType) {
             case 'download':          
              //location.href = "http://bpdda.esy.es/Comanda/backEnd/results.xls";      
-            location.href = "http://localhost:8080/TP_PROG3_1C_2018/Comanda/backEnd/results.xls";      
-                  
+            location.href = "http://localhost:8080/TP_PROG3_1C_2018/Comanda/backEnd/results.xls";       
                 break;
+            case 'unitsSales':swal('Ventas','Lo que mas se vendio fue '+response['top'].name+' en un total de '+response['top'].units+' unidades. Lo que menos se vendio fue '+response['bottom'].name+' con '+response['bottom'].units+' unidades','info');
+            break;
+            case 'tableTotalAmount':swal('Mesas','La mesa que mas facturo fue '+response[0].code+' en un total de $'+response[0].amount+'. La que menos facturo fue '+response[1].code+' con $'+response[1].amount,'info');
+            break;
+            case 'billing':swal('Facturacion total','desde '+validFrom+' hasta '+validTo+': $'+response[0].amount,'info');
+            break;
         }
     },function(error){
     swal({
