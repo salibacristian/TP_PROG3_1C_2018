@@ -18,7 +18,7 @@ class UserService extends User
     	return $newResponse;
     }
 
-    public function CheckUser($request, $response) {
+    public static function CheckUser($request, $response) {
         $ArrayDeParametros = $request->getParsedBody();
         $u=User::Check($ArrayDeParametros['email'],$ArrayDeParametros['password']);
         return $u;
