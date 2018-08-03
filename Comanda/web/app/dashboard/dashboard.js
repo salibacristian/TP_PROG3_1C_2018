@@ -1,5 +1,5 @@
-// var servidor="http://bpdda.esy.es/comanda/backEnd/";
-var servidor="http://localhost:8080/TP_PROG3_1C_2018/Comanda/backEnd/";
+var servidor="http://bpdda.esy.es/comanda/backEnd/";
+//var servidor="http://localhost:8080/TP_PROG3_1C_2018/Comanda/backEnd/";
 var role = 0;//client default
 var folderOrderImages = "../../../backend/fotosPedidos/";
 var tables = [];
@@ -99,8 +99,8 @@ function loadMainTable(param){
                 cancelButtonText: "cerrar"
             },function(isConfirm){
                 if(isConfirm){
-                    //location.href = "http://bpdda.esy.es/Comanda/web/app/login/login.html";      
-                    location.href = "http://localhost:8080/TP_PROG3_1C_2018/Comanda/web/app/login/login.html";      
+                    location.href = "http://bpdda.esy.es/Comanda/web/app/login/login.html";      
+                    //location.href = "http://localhost:8080/TP_PROG3_1C_2018/Comanda/web/app/login/login.html";      
                 }
             });
         }
@@ -141,8 +141,8 @@ function getOrders(param){
                 cancelButtonText: "cerrar"
             },function(isConfirm){
                 if(isConfirm){
-                    //location.href = "http://bpdda.esy.es/Comanda/web/app/login/login.html";      
-                    location.href = "http://localhost:8080/TP_PROG3_1C_2018/Comanda/web/app/login/login.html";      
+                    location.href = "http://bpdda.esy.es/Comanda/web/app/login/login.html";      
+                    //location.href = "http://localhost:8080/TP_PROG3_1C_2018/Comanda/web/app/login/login.html";      
                 }
             });
 
@@ -238,8 +238,8 @@ function getStats(){
     // console.log(response);
         switch (statsType) {
             case 'download':          
-             //location.href = "http://bpdda.esy.es/Comanda/backEnd/results.xls";      
-            location.href = "http://localhost:8080/TP_PROG3_1C_2018/Comanda/backEnd/results.xls";       
+             location.href = "http://bpdda.esy.es/Comanda/backEnd/results.xls";      
+           // location.href = "http://localhost:8080/TP_PROG3_1C_2018/Comanda/backEnd/results.xls";       
                 break;
             case 'unitsSales':swal('Ventas','Lo que mas se vendio fue '+response['top'].name+' en un total de '+response['top'].units+' unidades. Lo que menos se vendio fue '+response['bottom'].name+' con '+response['bottom'].units+' unidades','info');
             break;
@@ -467,8 +467,8 @@ function putOrder(orderId, action){
                 cancelButtonText: "cerrar"
             },function(isConfirm){
                 if(isConfirm){
-                    //location.href = "http://bpdda.esy.es/Comanda/web/app/login/login.html";      
-                    location.href = "http://localhost:8080/TP_PROG3_1C_2018/Comanda/web/app/login/login.html";      
+                    location.href = "http://bpdda.esy.es/Comanda/web/app/login/login.html";      
+                    //location.href = "http://localhost:8080/TP_PROG3_1C_2018/Comanda/web/app/login/login.html";      
                 }
             });
         }      
@@ -607,8 +607,8 @@ $(document).ready(function() {
               
        });      
        localStorage.removeItem('usrComanda');      
-        //location.href = "http://bpdda.esy.es/Comanda/web/app/login/login.html";      
-        location.href = "http://localhost:8080/TP_PROG3_1C_2018/Comanda/web/app/login/login.html";      
+        location.href = "http://bpdda.esy.es/Comanda/web/app/login/login.html";      
+       // location.href = "http://localhost:8080/TP_PROG3_1C_2018/Comanda/web/app/login/login.html";      
     });
     loadItems();
     loadMainTable();

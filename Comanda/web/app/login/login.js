@@ -63,8 +63,8 @@ $(document).ready(function() {
   
 });
 
-// var servidor="http://bpdda.esy.es/comanda/backEnd/";
-var servidor="http://localhost:8080/TP_PROG3_1C_2018/Comanda/backEnd/";
+ var servidor="http://bpdda.esy.es/comanda/backEnd/";
+//var servidor="http://localhost:8080/TP_PROG3_1C_2018/Comanda/backEnd/";
 
 
 function singin()
@@ -89,8 +89,8 @@ function singin()
     }		
     if(retorno.session == _correo)
     {
-     // location.href = "http://bpdda.esy.es/TP_PROG3_1C_2018/Comanda/web/app/dashboard/dashboard.html";
-      location.href = "http://localhost:8080/TP_PROG3_1C_2018/Comanda/web/app/dashboard/dashboard.html";
+      location.href = "http://bpdda.esy.es/Comanda/web/app/dashboard/dashboard.html";
+      //location.href = "http://localhost:8080/TP_PROG3_1C_2018/Comanda/web/app/dashboard/dashboard.html";
     }
     swal({
       title: retorno.mensaje,
