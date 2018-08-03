@@ -43,3 +43,17 @@ tr:hover{
 #lookup:focus {
     width: 30%;
 }
+
+.btnClient{
+    margin: 10px;
+}
+
+.spanClient{
+    color: blue;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+.questionIcon{
+    color: blue;
+    font-size: 1em;
+}

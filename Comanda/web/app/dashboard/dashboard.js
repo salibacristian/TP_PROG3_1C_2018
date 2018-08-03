@@ -4,6 +4,7 @@ var role = 0;//client default
 var folderOrderImages = "../../../backend/fotosPedidos/";
 var tables = [];
 var items = [];
+var selectedOrderId = 0;
 
 $(document).on("change", "#selectItems", function(e) {
     $("#newOrderInputs").html('');
@@ -162,6 +163,92 @@ function getOrders(param){
    });
 }
 
+function openClientDialog(){
+    $("#clientDialog").modal();
+}
+
+function getOrderForClient(){   
+    let tableCode = $('#clientTableCode').val();
+    let orderCode = $('#clientOrderCode').val();
+    $.ajax({
+        type: "get",
+        url: servidor+"Client/order/",
+        data: {
+            tableCode: tableCode,
+            orderCode: orderCode
+        }         
+   })
+   .then(function(response){
+        $("#clientDialog").modal('hide');
+       openMyOrderDialog(response);
+    },function(error){
+    swal({
+        title: "Error",
+        type: "error",
+        showCancelButton: false,
+        cancelButtonClass: "btn-info",
+        cancelButtonText: "cerrar"
+        });
+    });
+}
+
+function openMyOrderDialog(data){
+    if(data.order.status == 4){
+        $('#survey').show();
+        selectedOrderId = data.order.id;
+    }
+    let row = "<table class='table'><tr>"; 
+    row += "<td>"+data.order.code+"</td>"+
+        "<td>"+getStatus(data.order.status)+"</td>"+
+        (data.order.status == 1?"<td><b>Tiempo estimado:</b> "+data.remainingTime+" min.</td>":"")+        
+        (data.order.status == 1?"<td><b>Tiempo restante:</b> "+data.remainingTime+" min.</td>":"")+
+        "<td><a onclick='toggleMyOrder()'>ocultar</a></td>";        
+    row += "</tr></table>";
+    $('#myOrder').html(row);
+    $('#toggleOrderBtn').show();
+    $('#myOrder').show(1000);
+}
+
+function toggleMyOrder(){
+    $('#myOrder').toggle(1000);
+}
+
+function openSurveyDialog(){
+    $("#surveyDialog").modal();
+}
+
+function saveSurvey(){
+    let waiterPoints = $('#waiterPoints').val();
+    let producerPoints = $('#producerPoints').val();
+    let tablePoints = $('#tablePoints').val();
+    let comment = $('#comment').val();
+
+    $.ajax({
+        type: "put",
+        url: servidor+"Client/",
+        data: {
+            waiterPoints:waiterPoints,
+            producerPoints:producerPoints,
+            tablePoints:tablePoints,
+            comment:comment,
+            orderId: selectedOrderId
+        }         
+   })
+   .then(function(response){	
+        swal('Listo','','success');    
+   },function(error){
+       swal({
+        title: "Error",
+        text: "No se encontro la informacion de la carta",
+        type: "error",
+        showCancelButton: false,
+        cancelButtonClass: "btn-info",
+        cancelButtonText: "cerrar"
+    });
+   });
+
+}
+
 function getLetter(param){
     $.ajax({
         type: "get",
@@ -170,7 +257,7 @@ function getLetter(param){
    .then(function(response){		
     localStorage.setItem("mainList",JSON.stringify(response));
     if(response.length > 0){
-        drawTable(response);
+        drawLetter(response);
     }
     else{
         swal('Error','No se encontro la informacion de la carta','error');
@@ -187,13 +274,28 @@ function getLetter(param){
    });
 }
 
+function drawLetter(data){
+    let rows = "<ul>";
+    for (let sector = 0; sector < 4; sector++) {//foreach sectorId
+        rows += "<li>"+getSectorName(sector)+"</li>";
+        rows +="<ul>";
+        data.forEach(d => {
+            if(d.sectorId == sector){
+                rows +="<li>"+d.name+" $"+d.amount+"</li>"
+            }
+        });
+        rows +="</ul>";
+    }
+    rows +="</ul>";
+    $("#letter").html(rows);
+}
+
 function drawTable(data){
     if(data == ''){$("#mainTable").html(data); return;}
 
     var rows = '';
-    if(!role){//client
-    } 
-    else if(role == 1 || role == 2){//admin or waiter               
+
+    if(role == 1 || role == 2){//admin or waiter               
         rows += "<thead><tr>" +
         "<th>Codigo</th>" +
         "<th>Mesa</th>" +
@@ -339,6 +441,21 @@ function putOrder(orderId, action){
     });
 }
 
+function getSectorName(sectorId){
+    let rv = "";
+    switch (sectorId) {
+        case 0:   rv = "Tragos y Vinos";       
+        break;
+        case 1:   rv = "Cerveza Artesanal";       
+        break;  
+        case 2:   rv = "Cocina";       
+        break;
+        case 3:   rv = "Postres";       
+        break;       
+    }
+    return rv;
+}
+
 function getStatus(status){
     let rv = "";
     switch (status) {
@@ -380,15 +497,15 @@ function loadItems(){
    })
    .then(function(response){
        items = response;
-},function(error){
-   swal({
-    title: "Error",
-    type: "error",
-    showCancelButton: false,
-    cancelButtonClass: "btn-info",
-    cancelButtonText: "cerrar"
-});
-});
+    },function(error){
+    swal({
+        title: "Error",
+        type: "error",
+        showCancelButton: false,
+        cancelButtonClass: "btn-info",
+        cancelButtonText: "cerrar"
+        });
+    });
 }
 
 function openFinishOrderDialog(){
@@ -422,7 +539,12 @@ $(document).ready(function() {
         $("#usr").html(user.email);
         role = user.role;        
     }
-
+    else{
+        $('#lookup').hide();    
+        $('#clientZone').show(500);    
+        
+    }
+    
     if(role != 1){
         $('#liStats').hide();
         $('#liUsrs').hide();       

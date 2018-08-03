@@ -21,7 +21,7 @@
     <nav class="navbar navbar-inverse">
         <div class="container-fluid">
             <div class="navbar-header">
-                <a style="font-family:cursive;" class="navbar-brand" href="#">La Comanda</a>
+                <a style="font-family:cursive;" class="navbar-brand" href="#">La Comanda <i class="fa fa-utensils"></i></a>
             </div>
             <ul class="nav navbar-nav">
                 <li id="liStats" class="dropdown">
@@ -52,6 +52,24 @@
             <table id="mainTable" class="table table-hover mainTable">
                
             </table>
+        </div>
+        <div id="clientZone" class="row" style="display:none;">
+            <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
+                <div id="letter"></div>
+            </div>
+            <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                <button onclick="openClientDialog()" title="ver pedido" type="button" class="btn btn-primary btn-lg btnClient"><i class="fa fa-eye"></i> Mi Orden</button><br>
+                <div id="survey" style="display:none;">
+                    <span class="spanClient">Que te parece <strong style="font-family:cursive;">La Comanda</strong> <i class="fa fa-question questionIcon"></i></span><br>
+                    <button onclick="openSurveyDialog()" title="Evaluar" type="button" class="btn btn-primary btn-lg btnClient"><i class="fa fa-thumbs-up"></i> <i class="fa fa-thumbs-down"></i></button>  
+                </div>
+                <a id="toggleOrderBtn" onclick="toggleMyOrder()" style="display:none;">ver pedido</a>
+                <div id="myOrder" style="display:none;">
+                    
+                        <!-- inject row and show -->
+                    
+                </div>
+            </div>
         </div>
     </div>
 
@@ -118,6 +136,70 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class='btn btn-primary' onclick="loadOrder()">Ingresar</button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="clientDialog" role="dialog">
+        <div class="modal-dialog modal-sm">
+            <div class="modal-content">
+                <div class="modal-body">
+                    <div class="form-group row">
+                        <div class="col-xs-10 col-sm-10 col-md-8 col-lg-8">
+                        <label for="tableCode" class="col-2 col-form-label">mesa:</label>
+                        <input placeholder="codigo de su mesa" class="form-control" type="text" id="clientTableCode">
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <div class="col-xs-10 col-sm-10 col-md-8 col-lg-8">
+                        <label for="selectItems" class="col-2 col-form-label">orden:</label>                      
+                        <input placeholder="codigo de su orden" class="form-control" type="text" id="clientOrderCode">
+                        </div>
+                    </div>                   
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class='btn btn-primary' onclick="getOrderForClient()">Ver mi orden</button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="surveyDialog" role="dialog">
+        <div class="modal-dialog modal-md">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">Experiencia en <strong style="font-family:cursive;">La Comanda</strong> </h4>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group row">
+                            <div class="col-xs-10 col-sm-10 col-md-8 col-lg-8">
+                        <label for="waiterPoints" class="col-2 col-form-label">Puntaje para el moso</label>                        
+                            <input class="form-control" type="number" id="waiterPoints">
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <div class="col-xs-10 col-sm-10 col-md-8 col-lg-8">
+                    <label for="producerPoints" class="col-2 col-form-label">Puntaje para el cocinero</label>                        
+                        <input class="form-control" type="number" id="producerPoints">
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <div class="col-xs-10 col-sm-10 col-md-8 col-lg-8">
+                <label for="tablePoints" class="col-2 col-form-label">Puntaje para la mesa</label>                        
+                    <input class="form-control" type="number" id="tablePoints">
+                </div>
+            </div>
+            <div class="form-group row">
+                <div class="col-xs-10 col-sm-10 col-md-8 col-lg-8">
+                <textarea class="form-control" id="comment" placeholder="Escriba un brebe comentario (max 66 caracteres)"></textarea>
+            </div>
+        </div>
+                   
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class='btn btn-primary' onclick="saveSurvey()">Guardar</button>
                     <button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
                 </div>
             </div>
