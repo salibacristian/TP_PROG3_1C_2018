@@ -63,7 +63,7 @@ $(document).ready(function() {
   
 });
 
- var servidor="http://bpdda.esy.es/comanda/backEnd/";
+ var servidor="http://bpdda.esy.es/Comanda/backEnd/";
 //var servidor="http://localhost:8080/TP_PROG3_1C_2018/Comanda/backEnd/";
 
 
