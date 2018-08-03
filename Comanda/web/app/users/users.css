@@ -1,0 +1,59 @@
+body{
+    background-color: #a9a9ec;
+}
+
+/* .mainTable {
+    width: 30%;
+} */
+
+.tableImg{
+    height:40px;
+    width:40px;
+    /* margin-top: -5%;
+    margin-bottom:-5%; */
+}
+
+tr:hover{
+    cursor: pointer;
+}
+
+
+/* #wheelchairIcon{
+    font-size:20px;
+    color: rgb(165, 190, 194);
+
+} */
+
+#lookup {
+    width: 25%;
+    box-sizing: border-box;
+    border: 2px solid #ccc;
+    border-radius: 4px;
+    font-size: 16px;
+    background-color: white;
+    background-image: url('../searchIcon.png');
+    background-size: 25px 25px;
+    background-position: 10px 10px; 
+    background-repeat: no-repeat;
+    padding: 12px 20px 12px 40px;
+    -webkit-transition: width 0.4s ease-in-out;
+    transition: width 0.4s ease-in-out;
+}
+
+#lookup:focus {
+    width: 30%;
+}
+
+.btnClient{
+    margin: 10px;
+}
+
+.spanClient{
+    color: blue;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+.questionIcon{
+    color: blue;
+    font-size: 1em;
+}
