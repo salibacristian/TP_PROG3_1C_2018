@@ -1,23 +1,28 @@
 body{
-    background-color: #8a8aee;
+    background-color: #a9a9ec;
 }
 
-.tableCochera {
+/* .mainTable {
     width: 30%;
-}
+} */
 
-.porfileImg{
+.tableImg{
     height:40px;
     width:40px;
-    margin-top: -5%;
-    margin-bottom:-5%;
+    /* margin-top: -5%;
+    margin-bottom:-5%; */
 }
 
-#wheelchairIcon{
+tr:hover{
+    cursor: pointer;
+}
+
+
+/* #wheelchairIcon{
     font-size:20px;
     color: rgb(165, 190, 194);
-    /* background-color: white; */
-}
+
+} */
 
 #lookup {
     width: 25%;
@@ -26,7 +31,7 @@ body{
     border-radius: 4px;
     font-size: 16px;
     background-color: white;
-    background-image: url('iconSearch.png');
+    background-image: url('../searchIcon.png');
     background-size: 25px 25px;
     background-position: 10px 10px; 
     background-repeat: no-repeat;
@@ -37,4 +42,18 @@ body{
 
 #lookup:focus {
     width: 30%;
+}
+
+.btnClient{
+    margin: 10px;
+}
+
+.spanClient{
+    color: blue;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+.questionIcon{
+    color: blue;
+    font-size: 1em;
 }

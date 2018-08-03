@@ -18,15 +18,14 @@ class Order
 	public $takenDate;
 	public $finishDate;
 
-	public static function Orders($status) 
+	public static function OrderByCode($code) 
 	{
-		// var_dump($status);
-		// var_dump($sector);die();
+
 			$ctx = AccesoDatos::dameUnObjetoAcceso(); 
 			$query =$ctx->RetornarConsulta("select * from `order`
-			WHERE :status = `status`
+			WHERE `code` = :code
 			");	
-			$query->bindValue(':status',$status, PDO::PARAM_INT);		
+			$query->bindValue(':code',$code, PDO::PARAM_STR);			
 			$query->execute();
 			return $query->fetchAll(PDO::FETCH_CLASS,'Order');
 			
@@ -34,7 +33,7 @@ class Order
 	public static function AllOrders() 
 	{
 			$ctx = AccesoDatos::dameUnObjetoAcceso(); 
-			$query =$ctx->RetornarConsulta("select * from `order`");	
+			$query =$ctx->RetornarConsulta("select * from `order` where `status` != 3");	
 			$query->execute();
 			return $query->fetchAll(PDO::FETCH_CLASS,'Order');
 			

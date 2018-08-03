@@ -19,7 +19,7 @@ class OrderService extends Order
         $o=Order::AllOrders();
         break;
         case Role::Waiter://pedidos terminados de todos los sectores
-        $o=Order::Orders(OrderStatus::Finished);
+        $o=Order::AllOrders();
         break;
         case Role::Producer://debe ver los pendientes
         $o=Order_Item::PendingOrderItems($sector);
@@ -28,6 +28,12 @@ class OrderService extends Order
 
     $response = $response->withJson($o, 200);  
     return $response;
+  }
+
+  public function GetOrderByCode($request, $response, $args) {
+    $params = $request->getParams(); 
+    $o = Order::OrderByCode($params['orderCode']);
+     return $response->withJson($o, 200);  
   }
 
   public function GetOrderForClient($request, $response, $args) { 
@@ -92,7 +98,6 @@ class OrderService extends Order
     try{
     $body = $request->getParsedBody();
     $params = json_decode($body['request']);
-     //var_dump($params);die();
     $tableId= $params->tableId;
     $items= $params->items;
     $id_user= $_SESSION['userId'];
@@ -117,20 +122,20 @@ class OrderService extends Order
   
     $archivos = $request->getUploadedFiles();
     $destino="./fotosPedidos/";
-    //var_dump($archivos);
-    //var_dump($archivos['foto']);
-
+    // var_dump($archivos);die();
+    //var_dump($archivos['foto']);die();
+  if(isset($archivos['foto'])){
     $nombreAnterior=$archivos['foto']->getClientFilename();
     $extension= explode(".", $nombreAnterior)  ;
     //var_dump($nombreAnterior);die();
     $extension=array_reverse($extension);
     $o->imgUrl=$code.".".$extension[0];
-
+  }
     $orderId = $o->Add();
-
-    $archivos['foto']->moveTo($destino.$code.".".$extension[0]);
+    if(isset($archivos['foto']))
+      $archivos['foto']->moveTo($destino.$code.".".$extension[0]);
   
-     //cargo relacion con usuario moso
+    //cargo relacion con usuario moso
      $ou = new Order_User();
      
      $ou->userId=$id_user;
@@ -141,13 +146,13 @@ class OrderService extends Order
 
      //cargo relacion con items
      $oi = new Order_Item();
-     foreach ($items as $item) {
+     foreach ($items as $item) {     
       $oi->orderId=$orderId;
       $oi->itemId=$item->id;
       $oi->units=$item->units;
       $oi->Add();
      }
-     
+
      //actualizo status mesa
     RestaurantTable::ChangeStatus($tableId,TableStatus::Waiting);
      $objDelaRespuesta= new stdclass();
@@ -323,9 +328,8 @@ public function PayOrder($request, $response, $args) {
   $objDelaRespuesta= new stdclass();
   try{
   $params = $request->getParsedBody();
-  $tableCode= $params['tableCode']; 
-  $orderCode= $params['orderCode']; 
-  $order = Order::OrderForClient($tableCode,$orderCode);
+  $orderId= $params['orderId']; 
+  $order = Order::GetOrderById($orderId);
   if($order == null){
     $objDelaRespuesta->mensaje = "No se encontro la orden";
     return $response->withJson($objDelaRespuesta, 200);

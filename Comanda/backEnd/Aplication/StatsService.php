@@ -91,8 +91,8 @@ class StatsService
         $fromDate = $params['fromDate'];
         $toDate = $params['toDate'];
         $data = Stats::OrderEmployeesBySectorForExcel($fromDate, $toDate);
-        $fieldsLength = count($data);
-        // var_dump($data);die();
+        $dataLength = count($data);
+        //  var_dump($data);die();
         $excel = new PHPExcel(); 
         // header("Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
         // header("Content-Disposition: attachment; filename=\"results.xlsx\"");
@@ -110,9 +110,9 @@ class StatsService
         foreach ($data as $key => $row) {  
             // if($key == 0)//evito header
             //     continue;
-            $rowNumber = $key + 1;
+            $rowNumber = $key + 2;
             //  var_dump($row);die();
-           for ($i=0; $i < $fieldsLength; $i++) {         
+           for ($i=0; $i < 3; $i++) {         
                 $filed = $row[$i];
                 $colLetter = $letters[$i];
     

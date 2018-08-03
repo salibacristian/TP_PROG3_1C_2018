@@ -14,22 +14,23 @@ class Order_Item
 		// var_dump($sector);die();
 			$ctx = AccesoDatos::dameUnObjetoAcceso(); 
 			$query =$ctx->RetornarConsulta("select 					
-			orderId, itemId, units
+			oi.orderId, o.code orderCode, oi.itemId, i.name itemName, oi.units
 			FROM `order_item`oi
+			inner join `order` o on oi.orderId = o.id
 			inner join `item` i on oi.itemId = i.id
 			WHERE (:sector = i.`sectorId`)
 			AND oi.takenDate is null			
-			GROUP BY orderId, itemId, units
+			GROUP BY oi.orderId, o.code, oi.itemId, i.name, oi.units
+			ORDER BY oi.orderId, o.code, oi.itemId, i.name, oi.units
 			");	
 			$query->bindValue(':sector',$sector, PDO::PARAM_INT);			
 			$query->execute();
-			return $query->fetchAll(PDO::FETCH_CLASS,'Order_Item');
+			return $query->fetchAll(PDO::FETCH_CLASS,'ItemDto');
 			
 	}
 
 	public function Add()
 	{
-	//    var_dump($this);die;
 	   $ctx = AccesoDatos::dameUnObjetoAcceso();
 	   $query = $ctx->RetornarConsulta("INSERT INTO order_item 
 	   (itemId,units,orderId)
@@ -84,5 +85,12 @@ class Order_Item
 	   $query->execute();  
 	  return $query->fetchAll(PDO::FETCH_CLASS,'Order_Item');
 	}
+}
+class ItemDto{
+	public $orderId;
+	public $orderCode;
+    public $itemId;
+    public $itemName;
+    public $units;
 }
 ?>
