@@ -5,6 +5,7 @@ var folderOrderImages = "../../../backend/fotosPedidos/";
 var tables = [];
 var items = [];
 var selectedOrderId = 0;
+var statsType = '';
 
 $(document).on("change", "#selectItems", function(e) {
     $("#newOrderInputs").html('');
@@ -44,7 +45,7 @@ function loadOrder(){
    .then(function(response){	
     swal({
         title: 'Listo',
-        text: 'El codigo del pedido es '+response,
+        text: 'El codigo del pedido es '+response.mensaje,
         type: "success",
         showCancelButton: false,
         cancelButtonClass: "btn-info",
@@ -215,6 +216,42 @@ function toggleMyOrder(){
 
 function openSurveyDialog(){
     $("#surveyDialog").modal();
+}
+
+function openStatsDialog(type){
+    statsType = type;
+    $("#statsDialog").modal();
+}
+
+function getStats(){
+    let validFrom = $('#validFrom').val();
+    let validTo = $('#validTo').val();
+    $.ajax({
+        type: "get",
+       url: servidor+"Stats/"+statsType+"/",
+       data:{
+           fromDate: validFrom,
+           toDate: validTo
+       }
+    })
+    .then(function(response){
+    // console.log(response);
+        switch (statsType) {
+            case 'download':          
+             //location.href = "http://bpdda.esy.es/Comanda/backEnd/results.xls";      
+            location.href = "http://localhost:8080/TP_PROG3_1C_2018/Comanda/backEnd/results.xls";      
+                  
+                break;
+        }
+    },function(error){
+    swal({
+        title: "Error",
+        type: "error",
+        showCancelButton: false,
+        cancelButtonClass: "btn-info",
+        cancelButtonText: "cerrar"
+        });
+    });     
 }
 
 function saveSurvey(){

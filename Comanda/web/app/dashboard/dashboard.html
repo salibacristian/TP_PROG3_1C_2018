@@ -27,10 +27,9 @@
                 <li id="liStats" class="dropdown">
                     <a class="dropdown-toggle" data-toggle="dropdown" href="#">Estadisticas<span class="caret"></span></a>
                     <ul class="dropdown-menu">
-                        <li><a href="#">Pedidos</a></li>
-                        <li><a href="#">Ventas</a></li>
-                        <li><a href="#">Mesa Golden</a></li>
-                        <li><a href="#">Facturacion</a></li>
+                        <li><a onclick="openStatsDialog('unitsSales')">Ventas</a></li>
+                        <li><a onclick="openStatsDialog('tableTotalAmount')">Mesa Golden</a></li>
+                        <li><a onclick="openStatsDialog('billing')">Facturacion</a></li>
                     </ul>
                 </li>
                 <!-- <li><a href="http://bpdda.esy.es/Comanda/web/app/users/users.html">Usuarios</a></li> -->
@@ -38,7 +37,7 @@
                 <li id="liTables"><a href="http://localhost:8080/TP_PROG3_1C_2018/Comanda/web/app/tables/tables.html">Mesas</a></li>
                 <li id="liNewOrder" class="active"><button class="btn btn-primary" style="margin:5px;" onclick="openNewOrderDialog()"><i class="fa fa-upload"></i> Cargar Pedido</button></li>
                 <li id="liFinishOrder" class="active"><button class="btn btn-primary" style="margin:5px;" onclick="openFinishOrderDialog()"><i class="fa fa-check"></i> Orden Terminada</button></li>
-                <li id="liExcel" class="active"><button class="btn btn-success" style="margin:5px;" onclick="downloadExcel()"><i class="fa fa-file-excel"></i> Exportar Excel</button></li>
+                <li id="liExcel" class="active"><button class="btn btn-success" style="margin:5px;" onclick="openStatsDialog('download')"><i class="fa fa-file-excel"></i> Pedidos</button></li>
             </ul>
             <ul class="nav navbar-nav navbar-right">
                 <li><a id="usr" href="#"></a></li>
@@ -205,6 +204,29 @@
             </div>
         </div>
     </div>
+    <div class="modal fade" id="statsDialog" role="dialog">
+        <div class="modal-dialog modal-md">
+            <div class="modal-content">
+               
+                <div class="modal-body">
+                    <div class="form-group row">
+                        <div class="col-xs-10 col-sm-10 col-md-8 col-lg-8">
+                        <label for="validFrom" class="col-2 col-form-label">Desde</label>                        
+                        <input class="form-control" type="date" id="validFrom">
+                        <label for="validTo" class="col-2 col-form-label">Hasta</label>                        
+                        <input class="form-control" type="date" id="validTo">
+                        </div>
+                    </div>                    
+                   
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class='btn btn-primary' onclick="getStats()">Aceptar</button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
 
 </body>
 </html>

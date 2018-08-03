@@ -124,16 +124,16 @@ class OrderService extends Order
     $destino="./fotosPedidos/";
     // var_dump($archivos);die();
     //var_dump($archivos['foto']);die();
-
+  if(isset($archivos['foto'])){
     $nombreAnterior=$archivos['foto']->getClientFilename();
     $extension= explode(".", $nombreAnterior)  ;
     //var_dump($nombreAnterior);die();
     $extension=array_reverse($extension);
     $o->imgUrl=$code.".".$extension[0];
-
+  }
     $orderId = $o->Add();
-
-    $archivos['foto']->moveTo($destino.$code.".".$extension[0]);
+    if(isset($archivos['foto']))
+      $archivos['foto']->moveTo($destino.$code.".".$extension[0]);
   
     //cargo relacion con usuario moso
      $ou = new Order_User();
