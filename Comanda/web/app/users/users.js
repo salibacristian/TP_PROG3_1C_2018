@@ -16,6 +16,9 @@ function loadUser(){
     if(!usrName || !usrEmail || !usrPass || !selectedRol){ 
         swal('Complete los campos','','error');return;
     }
+    if(selectedRol == 3 && selectedSector == null){ 
+        swal('Error','Operativo debe pertenecer a un sector','error');return;
+    }
     let data = {
         name:usrName,
         email:usrEmail,
@@ -54,7 +57,8 @@ function loadUser(){
 }
 
 function openNewUserDialog(){  		
-     $("#newUserDialog").modal();         
+    $('#selectedSector').val(null);         
+    $("#newUserDialog").modal();         
 }
 
 function getUsers(){
@@ -115,14 +119,18 @@ function drawTable(data){
 
     rows += "</tr></thead><tbody>";
     data.forEach(d => {
+        let isSuspended = parseInt(d.isSuspended);
+        let sectorId = parseInt(d.sectorId);
+        let role = parseInt(d.role);
+        //como puede ser que solo en la nube me traiga los values int como string?
         rows += "<tr>" +
         "<td>" + d.name + "</td>" +
         "<td>" + d.email + "</td>" +
-        "<td>" + (d.isSuspended? "SI":"NO") + "</td>" +        
-        "<td>" + getSector(d.sectorId) + "</td>" +      
-        "<td>" + getRole(d.role) + "</td>" +       
+        "<td>" + (isSuspended? "SI":"NO") + "</td>" +        
+        "<td>" + getSector(sectorId) + "</td>" +      
+        "<td>" + getRole(role) + "</td>" +       
         "<td><a onclick='remove("+d.id+")'><i title='eliminar' class='fa fa-trash'></i></a></td>"+       
-        (d.isSuspended?"<td><a onclick='suspend("+d.id+","+0+")'><i title='habilitar' class='fa fa-unlock-alt'></i></a></td>"
+        (isSuspended?"<td><a onclick='suspend("+d.id+","+0+")'><i title='habilitar' class='fa fa-unlock-alt'></i></a></td>"
         :"<td><a onclick='suspend("+d.id+","+1+")'><i title='suspender' class='fa fa-lock'></i></a></td>");     
         rows +=" </tr>";
     });    
