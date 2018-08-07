@@ -46,16 +46,17 @@ function getTables(param){
 function drawTable(data){
     var rows = '';     
     data.forEach(d => {
-        if(role == 2 && d.status == 1)
+        let status = parseInt(d.status);
+        if(role == 2 && status == 1)
             rows += "<tr class='danger'>";
         else
             rows += "<tr>";
         rows +="<td>";
-        if(role == 1 && d.status != 0)
+        if(role == 1 && status != 0)
             rows += "<a title='CERRAR MESA' onclick='closeTable("+ d.id +")'><i style='color:red;' class='fa fa-window-close'></i></a>";
         rows += "</td>" +           
         "<td>" + d.code + "</td>" +           
-        "<td>" + getStatus(d.status) + "</td>" +        
+        "<td>" + getStatus(status) + "</td>" +        
         " </tr>";
     });    
 
