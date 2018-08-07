@@ -1,7 +1,7 @@
 var servidor="http://bpdda.esy.es/Comanda/backEnd/";
 //var servidor="http://localhost:8080/TP_PROG3_1C_2018/Comanda/backEnd/";
+var folderOrderImages = "http://bpdda.esy.es/Comanda/backEnd/fotosPedidos/";
 var role = 0;//client default
-var folderOrderImages = "../../../backend/fotosPedidos/";
 var tables = [];
 var items = [];
 var selectedOrderId = 0;
@@ -359,11 +359,12 @@ function drawTable(data){
         data.forEach(d => {
             let img = "<img class='tableImg' alt='sin foto' src='" + folderOrderImages + d.imgUrl + "'></img>";
             let tableCode = tables.filter(function(x){ return x.id == d.tableId;})[0].code;
-            rows += "<tr onclick='openOrderDialog("+ d.id +","+d.status+")'>" +
+            let status = parseInt(d.status);
+            rows += "<tr onclick='openOrderDialog("+ d.id +","+status+")'>" +
             "<td>" + d.code + "</td>" +
             "<td>" + tableCode + "</td>" +
             "<td>" + img + "</td>" +        
-            "<td>" + getStatus(d.status) + "</td>" +
+            "<td>" + getStatus(status) + "</td>" +
             "<td>" + (d.estimatedTime?d.estimatedTime:'') + "</td>";
             if(role == 1){
                 rows += "<td>" + (d.realTime?d.realTime:'') + "</td>" +
