@@ -219,7 +219,7 @@ function getRole(role){
     switch (role) {
         case 1:   rv = "Administrador";       
         break;  
-        case 2:   rv = "Moso";       
+        case 2:   rv = "Mozo";       
         break;
         case 3:   rv = "Operativo";       
         break;       
