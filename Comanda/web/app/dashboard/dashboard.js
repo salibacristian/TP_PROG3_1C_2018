@@ -201,10 +201,12 @@ function openMyOrderDialog(data){
     }
     let row = "<table class='table'><tr>"; 
     row += "<td>"+data.order.code+"</td>"+
-        "<td>"+getStatus(status)+"</td>"+
-        (status == 1?"<td><b>Tiempo estimado:</b> "+data.remainingTime+" min.</td>":"")+        
-        (status == 1?"<td><b>Tiempo restante:</b> "+data.remainingTime+" min.</td>":"")+
-        "<td><a onclick='toggleMyOrder()'>ocultar</a></td>";        
+        "<td>"+getStatus(status)+"</td>";
+        if(status == 1 && data.order.estimatedTime){
+            row +="<td><b>Tiempo estimado:</b> "+data.order.estimatedTime+" min.</td>"+        
+            "<td><b>Tiempo restante:</b> "+data.remainingTime+" min.</td>";
+        }
+        row += "<td><a onclick='toggleMyOrder()'>ocultar</a></td>";        
     row += "</tr></table>";
     $('#myOrder').html(row);
     $('#toggleOrderBtn').show();
