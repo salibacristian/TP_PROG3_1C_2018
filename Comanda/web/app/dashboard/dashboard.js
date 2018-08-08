@@ -196,8 +196,12 @@ function getOrderForClient(){
 function openMyOrderDialog(data){
     let status = parseInt(data.order.status);
     if(status == 4){
-        $('#survey').show();
+        $('#survey').show(200);
         selectedOrderId = data.order.id;
+    }
+    else {
+        $('#survey').hide(200);
+        selectedOrderId = 0;
     }
     let row = "<table class='table'><tr>"; 
     row += "<td>"+data.order.code+"</td>"+
