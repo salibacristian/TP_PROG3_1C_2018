@@ -194,15 +194,16 @@ function getOrderForClient(){
 }
 
 function openMyOrderDialog(data){
-    if(data.order.status == 4){
+    let status = parseInt(data.order.status);
+    if(status == 4){
         $('#survey').show();
         selectedOrderId = data.order.id;
     }
     let row = "<table class='table'><tr>"; 
     row += "<td>"+data.order.code+"</td>"+
-        "<td>"+getStatus(data.order.status)+"</td>"+
-        (data.order.status == 1?"<td><b>Tiempo estimado:</b> "+data.remainingTime+" min.</td>":"")+        
-        (data.order.status == 1?"<td><b>Tiempo restante:</b> "+data.remainingTime+" min.</td>":"")+
+        "<td>"+getStatus(status)+"</td>"+
+        (status == 1?"<td><b>Tiempo estimado:</b> "+data.remainingTime+" min.</td>":"")+        
+        (status == 1?"<td><b>Tiempo restante:</b> "+data.remainingTime+" min.</td>":"")+
         "<td><a onclick='toggleMyOrder()'>ocultar</a></td>";        
     row += "</tr></table>";
     $('#myOrder').html(row);
