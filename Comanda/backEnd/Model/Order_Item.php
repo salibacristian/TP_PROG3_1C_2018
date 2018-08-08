@@ -19,7 +19,8 @@ class Order_Item
 			inner join `order` o on oi.orderId = o.id
 			inner join `item` i on oi.itemId = i.id
 			WHERE (:sector = i.`sectorId`)
-			AND oi.takenDate is null			
+			AND oi.takenDate is null
+			AND o.`status` != 3			
 			GROUP BY oi.orderId, o.code, oi.itemId, i.name, oi.units
 			ORDER BY oi.orderId, o.code, oi.itemId, i.name, oi.units
 			");	
