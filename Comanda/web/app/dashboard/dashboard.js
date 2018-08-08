@@ -244,11 +244,18 @@ function getStats(){
              location.href = "http://bpdda.esy.es/Comanda/backEnd/results.xls";      
            // location.href = "http://localhost:8080/TP_PROG3_1C_2018/Comanda/backEnd/results.xls";       
                 break;
-            case 'unitsSales':swal('Ventas','Lo que mas se vendio fue '+response['top'].name+' en un total de '+response['top'].units+' unidades. Lo que menos se vendio fue '+response['bottom'].name+' con '+response['bottom'].units+' unidades','info');
+            case 'unitsSales':
+            let mostSold = response['top']? 'Lo que mas se vendio fue '+response['top'].name+' en un total de '+response['top'].units+' unidades.':'No hay informacion de top de ventas.';
+            let lessSold = response['bottom']? 'Lo que menos se vendio fue '+response['bottom'].name+' con '+response['bottom'].units+' unidades':'No hay informacion de bottom de ventas.';
+            swal('Ventas',mostSold+lessSold,'info');
             break;
-            case 'tableTotalAmount':swal('Mesas','La mesa que mas facturo fue '+response[0].code+' en un total de $'+response[0].amount+'. La que menos facturo fue '+response[1].code+' con $'+response[1].amount,'info');
+            case 'tableTotalAmount':
+            let bestTable = response[0]? 'La mesa que mas facturo fue '+response[0].code+' en un total de $'+response[0].amount:'';
+            let worstTable = response[1]? '. La que menos facturo fue '+response[1].code+' con $'+response[1].amount:'';
+            swal('Mesas',bestTable+worstTable,'info');
             break;
-            case 'billing':swal('Facturacion total','desde '+validFrom+' hasta '+validTo+': $'+response[0].amount,'info');
+            case 'billing':
+            swal('Facturacion total','desde '+validFrom+' hasta '+validTo+': $'+response[0].amount,'info');
             break;
         }
     },function(error){

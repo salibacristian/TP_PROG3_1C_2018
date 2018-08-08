@@ -29,9 +29,9 @@ class StatsService
         $fromDate = $params['fromDate'];
         $toDate = $params['toDate'];
         $report = Stats::UnitsSales($fromDate, $toDate);  
-        $rv= new stdclass(); 
-        $rv->top =  array_shift(array_values($report));
-        $rv->bottom =  array_pop(array_values($report));
+        $rv= new stdclass();         
+        $rv->top =  array_shift($report);
+        $rv->bottom =  array_pop($report);
         $response = $response->withJson($rv, 200);  
         return $response;
       }
