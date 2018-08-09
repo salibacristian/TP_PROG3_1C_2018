@@ -428,6 +428,9 @@ function openOrderItemsDialog(orderId){
 }
 
 function openOrderDialog(orderId,status){
+    $("#deliveryOrderButton").show();
+    $("#payOrderButton").show();
+    $("#cancelOrderButton").show();
     if(role != 1 && role != 2){
         $("#deliveryOrderButton").hide();
         $("#payOrderButton").hide();
